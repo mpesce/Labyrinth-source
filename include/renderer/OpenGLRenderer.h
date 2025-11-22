@@ -77,6 +77,30 @@ private:
     Matrix4 currentModelMatrix;
     float currentColor[3];  /* RGB diffuse color */
 
+    /* Light tracking (up to 8 lights) */
+    struct LightData {
+        int type;           /* 0=directional, 1=point, 2=spot */
+        float position[3];
+        float direction[3];
+        float color[3];
+        float intensity;
+        bool enabled;
+    };
+    LightData lights[8];
+    int numLights;
+
+    /* Camera from VRML scene */
+    bool vrmlCameraSet;
+    Vector3 vrmlCameraPos;
+    Vector3 vrmlCameraTarget;
+    float vrmlCameraFov;
+
+    /* Material properties */
+    float currentAmbient[3];
+    float currentDiffuse[3];
+    float currentSpecular[3];
+    float currentShininess;
+
     /* Shader compilation */
     bool compileShaders();
     unsigned int compileShader(const char* source, unsigned int type);
@@ -101,9 +125,16 @@ private:
     static void cb_drawCone(float bottomRadius, float height, void* userData);
     static void cb_drawCylinder(float radius, float height, void* userData);
     static void cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
-                                      float* coords, int numCoords, void* userData);
+                                      float* coords, int numCoords,
+                                      float* normals, int numNormals,
+                                      float* texCoords, int numTexCoords,
+                                      void* userData);
     static void cb_drawIndexedLineSet(int* coordIndex, int numIndices,
                                       float* coords, int numCoords, void* userData);
+    static void cb_addLight(int lightIndex, int type, float* position, float* direction,
+                            float* color, float intensity, bool on, void* userData);
+    static void cb_setCamera(int type, float* position, float* orientation,
+                             float fov, float aspectRatio, void* userData);
 
     /* GLFW callbacks */
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);
