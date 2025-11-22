@@ -71,7 +71,7 @@ Labyrinth represents a pivotal moment in web history:
 - First implementation of 3D graphics on the web
 - Proved feasibility of real-time 3D in web browsers
 - Established VRML as a standard (later influenced X3D, WebGL, WebXR)
-- Demonstrated by Mark Pesce at TED5 (1995)
+- Demonstrated at SIGKIDS, SIGGRAPH 95
 - Foundation for modern web 3D technologies
 
 ## Documentation
