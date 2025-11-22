@@ -40,35 +40,3 @@ void QvTexture2::traverse(void* action)
     // Load texture from filename (GIF format)
     // Set as current texture for subsequent geometry
 }
-
-QvSFImage::~QvSFImage()
-{
-    if (data != NULL) {
-        free(data);
-    }
-}
-
-BOOL QvSFImage::read(QvInput* in, const char* name)
-{
-    // Read: width height components [pixel data]
-    if (!in->read(&width) || !in->read(&height) || !in->read(&components)) {
-        return FALSE;
-    }
-
-    // Read pixel data
-    int numPixels = width * height * components;
-    if (data != NULL) {
-        free(data);
-    }
-    data = (unsigned char*)malloc(numPixels);
-
-    for (int i = 0; i < numPixels; i++) {
-        int val;
-        if (!in->read(&val)) {
-            return FALSE;
-        }
-        data[i] = (unsigned char)val;
-    }
-
-    return TRUE;
-}
