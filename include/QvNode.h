@@ -4,12 +4,20 @@
  * Part of Labyrinth VRML Browser
  * Copyright (c) 1995, The Community Company
  * Reconstructed from LABYRNTH.EXE (built March 4, 1995)
+ * Modernized 2025 - Cross-platform support
  */
 
 #ifndef _QV_NODE_H_
 #define _QV_NODE_H_
 
-#include <windows.h>
+/* Cross-platform boolean type */
+#ifndef BOOL
+#define BOOL int
+#endif
+#ifndef TRUE
+#define TRUE 1
+#define FALSE 0
+#endif
 
 // Forward declarations
 class QvField;

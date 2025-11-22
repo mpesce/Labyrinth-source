@@ -3,6 +3,7 @@
  */
 
 #include "../../include/QvTexture2.h"
+#include <stdlib.h>
 
 QvFieldData* QvTexture2::fieldData = NULL;
 

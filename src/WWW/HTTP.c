@@ -63,7 +63,7 @@ int HTTP_Get(const char* url, char** data, int* length)
     sock = HTTP_Connect(request.host, request.port);
     if (sock == INVALID_SOCKET) {
         fprintf(stderr, "HTTP: Unable to connect to remote host for `%s' (errno = %d).\n",
-                url, WSAGetLastError());
+                url, GET_SOCKET_ERROR());
         free(request.url);
         return HT_ERROR;
     }
@@ -72,14 +72,14 @@ int HTTP_Get(const char* url, char** data, int* length)
 
     /* Send request */
     if (!HTTP_SendRequest(sock, &request)) {
-        closesocket(sock);
+        CLOSE_SOCKET(sock);
         free(request.url);
         return HT_ERROR;
     }
 
     /* Read response */
     response = HTTP_ReadResponse(sock);
-    closesocket(sock);
+    CLOSE_SOCKET(sock);
     free(request.url);
 
     if (response == NULL) {
@@ -123,7 +123,7 @@ HTSocket HTTP_Connect(const char* host, int port)
     /* Resolve hostname */
     hp = gethostbyname(host);
     if (hp == NULL) {
-        closesocket(sock);
+        CLOSE_SOCKET(sock);
         return INVALID_SOCKET;
     }
 
@@ -135,7 +135,7 @@ HTSocket HTTP_Connect(const char* host, int port)
 
     /* Connect */
     if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
-        closesocket(sock);
+        CLOSE_SOCKET(sock);
         return INVALID_SOCKET;
     }
 

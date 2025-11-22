@@ -4,6 +4,7 @@
  * Part of Labyrinth VRML Browser
  * Copyright (c) 1995, The Community Company
  * Reconstructed from LABYRNTH.EXE (built March 4, 1995)
+ * Modernized 2025 - Cross-platform support
  *
  * VRML fields are the properties of nodes. Fields can be single-value (SF)
  * or multi-value (MF).
@@ -12,7 +13,18 @@
 #ifndef _QV_FIELDS_H_
 #define _QV_FIELDS_H_
 
-#include <windows.h>
+/* Cross-platform includes */
+#include <stdio.h>    /* For FILE* */
+#include <stddef.h>   /* For NULL */
+
+/* Cross-platform boolean type */
+#ifndef BOOL
+#define BOOL int
+#endif
+#ifndef TRUE
+#define TRUE 1
+#define FALSE 0
+#endif
 
 // Forward declarations
 class QvInput;
@@ -22,7 +34,7 @@ class QvString;
 struct QvVec2f { float x, y; };
 struct QvVec3f { float x, y, z; };
 struct QvVec4f { float x, y, z, w; };
-struct QvRotation { float x, y, z, angle; };  // Axis-angle rotation
+struct QvRotationValue { float x, y, z, angle; };  // Axis-angle rotation (renamed to avoid conflict with QvRotation node)
 struct QvMatrix {
     float m[4][4];  // 4x4 transformation matrix
 };
@@ -156,11 +168,11 @@ public:
 // QvSFRotation - Rotation (axis + angle)
 class QvSFRotation : public QvField {
 public:
+    QvRotationValue value;
+
     QvSFRotation() { value.x = value.y = value.z = value.angle = 0.0f; }
     virtual BOOL read(QvInput* in, const char* name);
     virtual const char* getTypeId() const { return "SFRotation"; }
-
-    QvRotation value;
 };
 
 // QvSFMatrix - 4x4 transformation matrix
@@ -268,7 +280,7 @@ private:
     int buflen;
     int curpos;
     int lineNum;
-    HANDLE fileHandle;
+    FILE* fileHandle;  /* Cross-platform file handle */
 };
 
 #endif // _QV_FIELDS_H_

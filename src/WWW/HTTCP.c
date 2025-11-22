@@ -4,6 +4,7 @@
  * Part of Labyrinth VRML Browser
  * Copyright (c) 1995, The Community Company
  * Reconstructed from LABYRNTH.EXE (built March 4, 1995)
+ * Modernized 2025 - Cross-platform support
  *
  * Source: E:\labsrc\WWW\HTTCP.C
  */
@@ -12,39 +13,45 @@
 #include <stdio.h>
 #include <string.h>
 
-static BOOL winsock_initialized = FALSE;
+static BOOL network_initialized = FALSE;
 
 /*
- * Initialize Winsock
+ * Initialize networking (Winsock on Windows, no-op on Unix)
  * Returns TRUE on success, FALSE on failure
  */
 BOOL HTTCP_Init(void)
 {
-    WSADATA wsaData;
-    int result;
-
-    if (winsock_initialized) {
+    if (network_initialized) {
         return TRUE;
     }
 
-    result = WSAStartup(MAKEWORD(1, 1), &wsaData);
+#ifdef _WIN32
+    /* Windows requires Winsock initialization */
+    WSADATA wsaData;
+    int result;
+
+    result = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (result != 0) {
         fprintf(stderr, "WSAStartup failed: %d\n", result);
         return FALSE;
     }
+#endif
+    /* Unix/Linux requires no initialization */
 
-    winsock_initialized = TRUE;
+    network_initialized = TRUE;
     return TRUE;
 }
 
 /*
- * Cleanup Winsock
+ * Cleanup networking (Winsock on Windows, no-op on Unix)
  */
 void HTTCP_Cleanup(void)
 {
-    if (winsock_initialized) {
+    if (network_initialized) {
+#ifdef _WIN32
         WSACleanup();
-        winsock_initialized = FALSE;
+#endif
+        network_initialized = FALSE;
     }
 }
 
@@ -54,7 +61,7 @@ void HTTCP_Cleanup(void)
  */
 HTSocket HTTCP_Socket(void)
 {
-    if (!winsock_initialized) {
+    if (!network_initialized) {
         HTTCP_Init();
     }
 
@@ -100,7 +107,7 @@ BOOL HTTCP_Connect(HTSocket sock, const char* host, int port)
 void HTTCP_Close(HTSocket sock)
 {
     if (sock != INVALID_SOCKET) {
-        closesocket(sock);
+        CLOSE_SOCKET(sock);
     }
 }
 
@@ -175,7 +182,7 @@ unsigned long HTTCP_GetHostByName(const char* host)
         return 0;
     }
 
-    if (!winsock_initialized) {
+    if (!network_initialized) {
         HTTCP_Init();
     }
 
@@ -192,5 +199,5 @@ unsigned long HTTCP_GetHostByName(const char* host)
  */
 int HTTCP_GetLastError(void)
 {
-    return WSAGetLastError();
+    return GET_SOCKET_ERROR();
 }
