@@ -18,8 +18,6 @@ Separator {
 
         Texture2 {
             filename "test-texture.gif"
-            wrapS REPEAT
-            wrapT REPEAT
         }
 
         Coordinate3 {
