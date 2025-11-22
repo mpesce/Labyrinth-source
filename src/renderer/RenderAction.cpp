@@ -532,8 +532,13 @@ void RenderAction::traverseGeometry(QvNode* node)
             }
 
             /* Pass coordIndex array and vertex data to renderer */
-            /* Note: coordIndex.values is long*, callback expects int* */
-            drawIndexedFaceSet((int*)faceSet->coordIndex.values,
+            /* Note: coordIndex.values is long*, need to convert to int* */
+            int* coordIndexInt = new int[faceSet->coordIndex.num];
+            for (int i = 0; i < faceSet->coordIndex.num; i++) {
+                coordIndexInt[i] = (int)faceSet->coordIndex.values[i];
+            }
+
+            drawIndexedFaceSet(coordIndexInt,
                              faceSet->coordIndex.num,
                              (float*)coords->point.values,
                              coords->point.num,
@@ -542,6 +547,8 @@ void RenderAction::traverseGeometry(QvNode* node)
                              texCoords,
                              numTexCoords,
                              userData);
+
+            delete[] coordIndexInt;
         }
     }
 }
