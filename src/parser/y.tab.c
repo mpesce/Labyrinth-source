@@ -807,9 +807,9 @@ static const yytype_int16 yyrline[] =
      260,   261,   262,   263,   264,   265,   266,   267,   268,   269,
      270,   271,   272,   273,   274,   275,   276,   277,   278,   279,
      280,   281,   282,   283,   284,   285,   286,   291,   292,   294,
-     306,   315,   321,   326,   331,   336,   344,   345,   349,   357,
-     366,   376,   379,   381,   382,   383,   387,   388,   389,   390,
-     391
+     302,   311,   317,   322,   327,   332,   340,   341,   345,   353,
+     362,   372,   375,   377,   378,   379,   383,   384,   385,   386,
+     387
 };
 #endif
 
@@ -1771,17 +1771,13 @@ yyreduce:
 #line 295 "vrml.y"
     {
         // Add child node to current_node (if it's a group)
-        fprintf(stderr, "DEBUG: nodeBody node action - current_node=%p, child=%p\n", current_node, (yyvsp[0].node));
-        fflush(stderr);
         add_child_to_group(current_node, (yyvsp[0].node));
-        fprintf(stderr, "DEBUG: after add_child_to_group\n");
-        fflush(stderr);
     }
-#line 1781 "y.tab.c"
+#line 1777 "y.tab.c"
     break;
 
   case 50: /* fieldDeclaration: IDENTIFIER number  */
-#line 307 "vrml.y"
+#line 303 "vrml.y"
     {
         // Could be int or float field - try both
         if ((int)(yyvsp[0].floatval) == (yyvsp[0].floatval)) {
@@ -1790,99 +1786,99 @@ yyreduce:
         set_field_float(current_node, (yyvsp[-1].stringval), (yyvsp[0].floatval));
         free((yyvsp[-1].stringval));
     }
-#line 1794 "y.tab.c"
+#line 1790 "y.tab.c"
     break;
 
   case 51: /* fieldDeclaration: IDENTIFIER STRING  */
-#line 316 "vrml.y"
+#line 312 "vrml.y"
     {
         set_field_string(current_node, (yyvsp[-1].stringval), (yyvsp[0].stringval));
         free((yyvsp[-1].stringval));
         free((yyvsp[0].stringval));
     }
-#line 1804 "y.tab.c"
+#line 1800 "y.tab.c"
     break;
 
   case 52: /* fieldDeclaration: IDENTIFIER vec2f  */
-#line 322 "vrml.y"
+#line 318 "vrml.y"
     {
         set_field_vec2f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec2).x, (yyvsp[0].vec2).y);
         free((yyvsp[-1].stringval));
     }
-#line 1813 "y.tab.c"
+#line 1809 "y.tab.c"
     break;
 
   case 53: /* fieldDeclaration: IDENTIFIER vec3f  */
-#line 327 "vrml.y"
+#line 323 "vrml.y"
     {
         set_field_vec3f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec3).x, (yyvsp[0].vec3).y, (yyvsp[0].vec3).z);
         free((yyvsp[-1].stringval));
     }
-#line 1822 "y.tab.c"
+#line 1818 "y.tab.c"
     break;
 
   case 54: /* fieldDeclaration: IDENTIFIER rotation  */
-#line 332 "vrml.y"
+#line 328 "vrml.y"
     {
         set_field_rotation(current_node, (yyvsp[-1].stringval), (yyvsp[0].rot).x, (yyvsp[0].rot).y, (yyvsp[0].rot).z, (yyvsp[0].rot).angle);
         free((yyvsp[-1].stringval));
     }
-#line 1831 "y.tab.c"
+#line 1827 "y.tab.c"
     break;
 
   case 55: /* fieldDeclaration: IDENTIFIER fieldArray  */
-#line 337 "vrml.y"
+#line 333 "vrml.y"
     {
         /* Array field assignments handled separately */
         free((yyvsp[-1].stringval));
     }
-#line 1840 "y.tab.c"
+#line 1836 "y.tab.c"
     break;
 
   case 56: /* number: INTEGER  */
-#line 344 "vrml.y"
+#line 340 "vrml.y"
             { (yyval.floatval) = (float)(yyvsp[0].intval); }
-#line 1846 "y.tab.c"
+#line 1842 "y.tab.c"
     break;
 
   case 57: /* number: FLOAT  */
-#line 345 "vrml.y"
+#line 341 "vrml.y"
             { (yyval.floatval) = (yyvsp[0].floatval); }
-#line 1852 "y.tab.c"
+#line 1848 "y.tab.c"
     break;
 
   case 58: /* vec2f: number number  */
-#line 350 "vrml.y"
+#line 346 "vrml.y"
     {
         (yyval.vec2).x = (yyvsp[-1].floatval);
         (yyval.vec2).y = (yyvsp[0].floatval);
     }
-#line 1861 "y.tab.c"
+#line 1857 "y.tab.c"
     break;
 
   case 59: /* vec3f: number number number  */
-#line 358 "vrml.y"
+#line 354 "vrml.y"
     {
         (yyval.vec3).x = (yyvsp[-2].floatval);
         (yyval.vec3).y = (yyvsp[-1].floatval);
         (yyval.vec3).z = (yyvsp[0].floatval);
     }
-#line 1871 "y.tab.c"
+#line 1867 "y.tab.c"
     break;
 
   case 60: /* rotation: number number number number  */
-#line 367 "vrml.y"
+#line 363 "vrml.y"
     {
         (yyval.rot).x = (yyvsp[-3].floatval);
         (yyval.rot).y = (yyvsp[-2].floatval);
         (yyval.rot).z = (yyvsp[-1].floatval);
         (yyval.rot).angle = (yyvsp[0].floatval);
     }
-#line 1882 "y.tab.c"
+#line 1878 "y.tab.c"
     break;
 
 
-#line 1886 "y.tab.c"
+#line 1882 "y.tab.c"
 
       default: break;
     }
@@ -2075,7 +2071,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 394 "vrml.y"
+#line 390 "vrml.y"
 
 
 /*
@@ -2140,39 +2136,17 @@ QvNode* create_node(const char* type)
  */
 void add_child_to_group(QvNode* parent, QvNode* child)
 {
-    fprintf(stderr, "DEBUG: add_child_to_group start\n");
-    fflush(stderr);
-
     if (parent == NULL || child == NULL) {
-        fprintf(stderr, "DEBUG: parent or child is NULL\n");
-        fflush(stderr);
         return;
     }
 
-    fprintf(stderr, "DEBUG: getting node type\n");
-    fflush(stderr);
-
     /* Check if parent is actually a group node type */
     QvNodeType type = parent->getNodeType();
-    fprintf(stderr, "DEBUG: parent type = %d\n", type);
-    fflush(stderr);
-
     if (type == QV_SEPARATOR || type == QV_GROUP || type == QV_TRANSFORM_SEPARATOR ||
         type == QV_SWITCH || type == QV_LEVEL_OF_DETAIL) {
-        fprintf(stderr, "DEBUG: casting to group\n");
-        fflush(stderr);
         QvGroup* group = (QvGroup*)parent;
-        fprintf(stderr, "DEBUG: calling addChild, child name: %s\n", child->getNodeName());
-        fflush(stderr);
         group->addChild(child);
-        fprintf(stderr, "DEBUG: addChild returned\n");
-        fflush(stderr);
-    } else {
-        fprintf(stderr, "DEBUG: Cannot add child to non-group node %s\n", parent->getNodeName());
-        fflush(stderr);
     }
-    fprintf(stderr, "DEBUG: add_child_to_group end\n");
-    fflush(stderr);
 }
 
 /*
