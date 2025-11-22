@@ -42,6 +42,9 @@ RenderState::RenderState()
     vertexOrdering = 0;  /* UNKNOWN */
     shapeType = 0;       /* UNKNOWN */
     faceType = 0;        /* UNKNOWN */
+
+    /* Geometry property nodes */
+    currentCoordinates = NULL;
 }
 
 RenderState::~RenderState()
@@ -72,6 +75,9 @@ RenderState* RenderState::copy() const
     newState->vertexOrdering = vertexOrdering;
     newState->shapeType = shapeType;
     newState->faceType = faceType;
+
+    /* Copy geometry property nodes (just the pointers, nodes are ref-counted) */
+    newState->currentCoordinates = currentCoordinates;
 
     return newState;
 }
@@ -270,6 +276,9 @@ void RenderAction::traverseNode(QvNode* node)
         traverseTransform(node);
     } else if (strcmp(nodeType, "Material") == 0) {
         traverseMaterial(node);
+    } else if (strcmp(nodeType, "Coordinate3") == 0) {
+        /* Store current coordinates for IndexedFaceSet */
+        currentState->currentCoordinates = (QvCoordinate3*)node;
     } else if (strcmp(nodeType, "Sphere") == 0 ||
                strcmp(nodeType, "Cube") == 0 ||
                strcmp(nodeType, "Cone") == 0 ||
@@ -467,13 +476,18 @@ void RenderAction::traverseGeometry(QvNode* node)
         }
     } else if (type == QV_INDEXED_FACE_SET) {
         QvIndexedFaceSet* faceSet = (QvIndexedFaceSet*)node;
-        if (drawIndexedFaceSet && faceSet->coordIndex.num > 0) {
-            /* Get coordinate data from coordIndex field */
-            /* Note: coordIndex.values is long*, callback expects int* */
-            /* For now, cast it - proper implementation would handle coordinate nodes */
+        if (drawIndexedFaceSet && faceSet->coordIndex.num > 0 &&
+            currentState->currentCoordinates != NULL) {
+            /* Get coordinate data from current Coordinate3 node */
+            QvCoordinate3* coords = currentState->currentCoordinates;
 
+            /* Pass coordIndex array and actual vertex coordinates to renderer */
+            /* Note: coordIndex.values is long*, callback expects int* */
             drawIndexedFaceSet((int*)faceSet->coordIndex.values,
-                             faceSet->coordIndex.num, NULL, 0, userData);
+                             faceSet->coordIndex.num,
+                             (float*)coords->point.values,
+                             coords->point.num,
+                             userData);
         }
     }
 }

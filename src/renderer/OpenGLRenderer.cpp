@@ -567,8 +567,143 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
                                            float* coords, int numCoords,
                                            void* userData)
 {
-    fprintf(stderr, "Drawing indexed face set: %d indices, %d coords\n",
-            numIndices, numCoords);
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer || !renderer->shaderProgram || !coordIndex || !coords) {
+        return;
+    }
+
+    /* Apply current transform and material state */
+    renderer->applyCurrentState();
+
+    /* Parse coordIndex array and build triangles */
+    std::vector<float> vertices;
+    std::vector<float> normals;
+
+    /* Current polygon being built */
+    std::vector<int> polygon;
+
+    for (int i = 0; i < numIndices; i++) {
+        int idx = coordIndex[i];
+
+        if (idx == -1) {
+            /* End of polygon - triangulate it */
+            if (polygon.size() >= 3) {
+                /* For simplicity, do fan triangulation from first vertex */
+                /* This works for convex polygons */
+                for (size_t j = 1; j + 1 < polygon.size(); j++) {
+                    int i0 = polygon[0];
+                    int i1 = polygon[j];
+                    int i2 = polygon[j + 1];
+
+                    /* Validate indices */
+                    if (i0 >= 0 && i0 < numCoords &&
+                        i1 >= 0 && i1 < numCoords &&
+                        i2 >= 0 && i2 < numCoords) {
+
+                        /* Add triangle vertices */
+                        /* Each coordinate is 3 floats (x, y, z) */
+                        for (int k = 0; k < 3; k++) {
+                            vertices.push_back(coords[i0 * 3 + k]);
+                        }
+                        for (int k = 0; k < 3; k++) {
+                            vertices.push_back(coords[i1 * 3 + k]);
+                        }
+                        for (int k = 0; k < 3; k++) {
+                            vertices.push_back(coords[i2 * 3 + k]);
+                        }
+
+                        /* Calculate face normal using cross product */
+                        float v0[3] = {
+                            coords[i0 * 3 + 0], coords[i0 * 3 + 1], coords[i0 * 3 + 2]
+                        };
+                        float v1[3] = {
+                            coords[i1 * 3 + 0], coords[i1 * 3 + 1], coords[i1 * 3 + 2]
+                        };
+                        float v2[3] = {
+                            coords[i2 * 3 + 0], coords[i2 * 3 + 1], coords[i2 * 3 + 2]
+                        };
+
+                        /* Edge vectors */
+                        float e1[3] = { v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2] };
+                        float e2[3] = { v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2] };
+
+                        /* Cross product */
+                        float normal[3] = {
+                            e1[1] * e2[2] - e1[2] * e2[1],
+                            e1[2] * e2[0] - e1[0] * e2[2],
+                            e1[0] * e2[1] - e1[1] * e2[0]
+                        };
+
+                        /* Normalize */
+                        float length = sqrtf(normal[0] * normal[0] +
+                                           normal[1] * normal[1] +
+                                           normal[2] * normal[2]);
+                        if (length > 0.0001f) {
+                            normal[0] /= length;
+                            normal[1] /= length;
+                            normal[2] /= length;
+                        }
+
+                        /* Add same normal for all 3 vertices (flat shading) */
+                        for (int v = 0; v < 3; v++) {
+                            normals.push_back(normal[0]);
+                            normals.push_back(normal[1]);
+                            normals.push_back(normal[2]);
+                        }
+                    }
+                }
+            }
+
+            /* Clear polygon for next face */
+            polygon.clear();
+        } else {
+            /* Add vertex index to current polygon */
+            polygon.push_back(idx);
+        }
+    }
+
+    /* If we have vertices to render, create temporary VAO/VBO and draw */
+    if (vertices.size() > 0) {
+        GLuint tempVAO, tempVBO;
+        glGenVertexArrays(1, &tempVAO);
+        glGenBuffers(1, &tempVBO);
+
+        glBindVertexArray(tempVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, tempVBO);
+
+        /* Interleave position and normal data */
+        std::vector<float> interleavedData;
+        for (size_t i = 0; i < vertices.size() / 3; i++) {
+            /* Position */
+            interleavedData.push_back(vertices[i * 3 + 0]);
+            interleavedData.push_back(vertices[i * 3 + 1]);
+            interleavedData.push_back(vertices[i * 3 + 2]);
+            /* Normal */
+            interleavedData.push_back(normals[i * 3 + 0]);
+            interleavedData.push_back(normals[i * 3 + 1]);
+            interleavedData.push_back(normals[i * 3 + 2]);
+        }
+
+        glBufferData(GL_ARRAY_BUFFER, interleavedData.size() * sizeof(float),
+                     interleavedData.data(), GL_STATIC_DRAW);
+
+        /* Position attribute */
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(0);
+
+        /* Normal attribute */
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                            (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(1);
+
+        /* Draw triangles */
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
+
+        /* Cleanup */
+        glBindVertexArray(0);
+        glDeleteBuffers(1, &tempVBO);
+        glDeleteVertexArrays(1, &tempVAO);
+    }
 }
 
 void OpenGLRenderer::cb_drawIndexedLineSet(int* coordIndex, int numIndices,
