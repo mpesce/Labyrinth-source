@@ -1491,25 +1491,46 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
 {
     unsigned int textureID;
     glGenTextures(1, &textureID);
+    printf("DEBUG: loadTextureFromFile - Generated texture ID=%u for '%s'\n", textureID, filename);
 
     /* Try to load PPM file first */
     FILE* file = fopen(filename, "rb");
     if (file) {
+        printf("DEBUG: File opened successfully\n");
         char magic[3];
         int width, height, maxval;
 
         /* Read PPM header */
-        if (fscanf(file, "%2s\n%d %d\n%d\n", magic, &width, &height, &maxval) == 4 &&
-            magic[0] == 'P' && magic[1] == '6' && maxval == 255) {
+        int scanResult = fscanf(file, "%2s\n%d %d\n%d\n", magic, &width, &height, &maxval);
+        printf("DEBUG: PPM header scan result=%d, magic='%c%c', w=%d, h=%d, maxval=%d\n",
+               scanResult, magic[0], magic[1], width, height, maxval);
+
+        if (scanResult == 4 && magic[0] == 'P' && magic[1] == '6' && maxval == 255) {
+            printf("DEBUG: Valid PPM header detected\n");
 
             /* Read RGB data */
             int size = width * height * 3;
             unsigned char* data = (unsigned char*)malloc(size);
 
-            if (data && fread(data, 1, size, file) == (size_t)size) {
+            size_t bytesRead = fread(data, 1, size, file);
+            printf("DEBUG: Attempted to read %d bytes, actually read %zu bytes\n", size, bytesRead);
+
+            if (data && bytesRead == (size_t)size) {
+                printf("DEBUG: Successfully read image data, creating OpenGL texture\n");
                 glBindTexture(GL_TEXTURE_2D, textureID);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+                GLenum err = glGetError();
+                if (err != GL_NO_ERROR) {
+                    printf("DEBUG: glTexImage2D ERROR: 0x%x\n", err);
+                }
+
                 glGenerateMipmap(GL_TEXTURE_2D);
+
+                err = glGetError();
+                if (err != GL_NO_ERROR) {
+                    printf("DEBUG: glGenerateMipmap ERROR: 0x%x\n", err);
+                }
 
                 /* Set wrap mode */
                 GLint glWrapS = (wrapS == 0) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
@@ -1526,12 +1547,18 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
 
                 printf("Loaded texture from file: %s (%dx%d)\n", filename, width, height);
                 return textureID;
+            } else {
+                printf("DEBUG: Failed to read complete image data\n");
             }
 
             if (data) free(data);
+        } else {
+            printf("DEBUG: Invalid PPM header, using fallback\n");
         }
 
         fclose(file);
+    } else {
+        printf("DEBUG: Failed to open file '%s'\n", filename);
     }
 
     /* Fallback: create procedural checkered pattern */
