@@ -6,7 +6,7 @@ Separator {
     }
 
     Texture2 {
-        filename "test.gif"
+        filename "examples/textures/checker.ppm"
     }
 
     Coordinate3 {

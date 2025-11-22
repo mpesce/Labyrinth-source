@@ -1484,9 +1484,49 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
-    /* For now, create a simple procedural checkered texture as placeholder */
-    /* TODO: Load actual image file using stb_image or similar library */
+    /* Try to load PPM file first */
+    FILE* file = fopen(filename, "rb");
+    if (file) {
+        char magic[3];
+        int width, height, maxval;
 
+        /* Read PPM header */
+        if (fscanf(file, "%2s\n%d %d\n%d\n", magic, &width, &height, &maxval) == 4 &&
+            magic[0] == 'P' && magic[1] == '6' && maxval == 255) {
+
+            /* Read RGB data */
+            int size = width * height * 3;
+            unsigned char* data = (unsigned char*)malloc(size);
+
+            if (data && fread(data, 1, size, file) == (size_t)size) {
+                glBindTexture(GL_TEXTURE_2D, textureID);
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+                glGenerateMipmap(GL_TEXTURE_2D);
+
+                /* Set wrap mode */
+                GLint glWrapS = (wrapS == 0) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+                GLint glWrapT = (wrapT == 0) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapS);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapT);
+
+                /* Set filtering */
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+                free(data);
+                fclose(file);
+
+                printf("Loaded texture from file: %s (%dx%d)\n", filename, width, height);
+                return textureID;
+            }
+
+            if (data) free(data);
+        }
+
+        fclose(file);
+    }
+
+    /* Fallback: create procedural checkered pattern */
     const int width = 64;
     const int height = 64;
     unsigned char data[width * height * 3];
@@ -1517,6 +1557,6 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    printf("Loaded texture (placeholder checkered pattern): %s\n", filename);
+    printf("Loaded texture (procedural fallback): %s\n", filename);
     return textureID;
 }
