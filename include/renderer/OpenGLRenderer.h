@@ -73,10 +73,17 @@ private:
     unsigned int shaderProgram;
     unsigned int vao, vbo, ebo;
 
+    /* Current scene state (from RenderAction) */
+    Matrix4 currentModelMatrix;
+    float currentColor[3];  /* RGB diffuse color */
+
     /* Shader compilation */
     bool compileShaders();
     unsigned int compileShader(const char* source, unsigned int type);
     unsigned int linkProgram(unsigned int vertex, unsigned int fragment);
+
+    /* Helper to apply current transform and material */
+    void applyCurrentState();
 
     /* Geometry generation */
     void generateSphere(float radius, int segments);

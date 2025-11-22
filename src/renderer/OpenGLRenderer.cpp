@@ -101,6 +101,12 @@ OpenGLRenderer::OpenGLRenderer()
     windowHeight = 600;
     shaderProgram = 0;
     vao = vbo = ebo = 0;
+
+    /* Initialize scene state */
+    currentModelMatrix.identity();
+    currentColor[0] = 0.8f;
+    currentColor[1] = 0.2f;
+    currentColor[2] = 0.2f;
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -337,16 +343,10 @@ void OpenGLRenderer::updateCamera()
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, projMatrix);
     }
 
-    /* Set up model matrix (identity) */
+    /* Set up model matrix (from current transform) */
     GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
     if (modelLoc != -1) {
-        float modelMatrix[16] = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.0f, 1.0f
-        };
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, modelMatrix);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, currentModelMatrix.m);
     }
 
     /* Set up lighting uniforms */
@@ -367,7 +367,7 @@ void OpenGLRenderer::updateCamera()
 
     GLint objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
     if (objectColorLoc != -1) {
-        glUniform3f(objectColorLoc, 0.8f, 0.2f, 0.2f);
+        glUniform3f(objectColorLoc, currentColor[0], currentColor[1], currentColor[2]);
     }
 }
 
@@ -511,12 +511,24 @@ void OpenGLRenderer::cb_endSeparator(void* userData)
 
 void OpenGLRenderer::cb_setTransform(Matrix4* matrix, void* userData)
 {
-    /* Set model matrix uniform */
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer || !matrix) return;
+
+    /* Store the current model matrix */
+    for (int i = 0; i < 16; i++) {
+        renderer->currentModelMatrix.m[i] = matrix->m[i];
+    }
 }
 
 void OpenGLRenderer::cb_setMaterial(RenderState* state, void* userData)
 {
-    /* Set material uniforms (color, shininess, etc.) */
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer || !state || !state->diffuseColor) return;
+
+    /* Store current material color */
+    renderer->currentColor[0] = state->diffuseColor->r;
+    renderer->currentColor[1] = state->diffuseColor->g;
+    renderer->currentColor[2] = state->diffuseColor->b;
 }
 
 void OpenGLRenderer::cb_drawSphere(float radius, void* userData)
@@ -565,6 +577,26 @@ void OpenGLRenderer::cb_drawIndexedLineSet(int* coordIndex, int numIndices,
 {
     fprintf(stderr, "Drawing indexed line set: %d indices, %d coords\n",
             numIndices, numCoords);
+}
+
+/* Helper to apply current state before drawing */
+void OpenGLRenderer::applyCurrentState()
+{
+    if (!shaderProgram) return;
+
+    glUseProgram(shaderProgram);
+
+    /* Set model matrix */
+    GLint modelLoc = glGetUniformLocation(shaderProgram, "model");
+    if (modelLoc != -1) {
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, currentModelMatrix.m);
+    }
+
+    /* Set object color */
+    GLint objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
+    if (objectColorLoc != -1) {
+        glUniform3f(objectColorLoc, currentColor[0], currentColor[1], currentColor[2]);
+    }
 }
 
 /* Geometry generation implementations */
@@ -637,8 +669,10 @@ void OpenGLRenderer::generateSphere(float radius, int segments)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    /* Apply current transform and material */
+    applyCurrentState();
+
     /* Draw */
-    glUseProgram(shaderProgram);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
     /* Cleanup */
@@ -715,8 +749,10 @@ void OpenGLRenderer::generateCube(float width, float height, float depth)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    /* Apply current transform and material */
+    applyCurrentState();
+
     /* Draw */
-    glUseProgram(shaderProgram);
     glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     /* Cleanup */
@@ -813,7 +849,7 @@ void OpenGLRenderer::generateCone(float radius, float height, int segments)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glUseProgram(shaderProgram);
+    applyCurrentState();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
@@ -938,7 +974,7 @@ void OpenGLRenderer::generateCylinder(float radius, float height, int segments)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glUseProgram(shaderProgram);
+    applyCurrentState();
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
 
     glBindVertexArray(0);
