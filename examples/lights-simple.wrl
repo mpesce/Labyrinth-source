@@ -1,0 +1,29 @@
+#VRML V1.0 ascii
+
+# Simple lighting test
+
+Separator {
+    PerspectiveCamera {
+        position 0 5 10
+        orientation 1 0 0 -0.3
+    }
+
+    DirectionalLight {
+        direction 0 -1 -1
+        color 1 1 0.9
+        intensity 0.8
+    }
+
+    PointLight {
+        location 5 3 0
+        color 1 0.8 0.6
+    }
+
+    Material {
+        diffuseColor 1 0 0
+    }
+
+    Sphere {
+        radius 2
+    }
+}

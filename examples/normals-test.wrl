@@ -1,0 +1,40 @@
+#VRML V1.0 ascii
+
+# Test Normal node for smooth shading
+
+Separator {
+    Material {
+        diffuseColor 0.3 0.5 1
+        specularColor 0.8 0.8 1
+    }
+
+    Coordinate3 {
+        point [
+            0 2 0,
+            -1 0 1,
+            1 0 1,
+            1 0 -1,
+            -1 0 -1
+        ]
+    }
+
+    Normal {
+        vector [
+            0 1 0,
+            -0.447 0 0.894,
+            0.447 0 0.894,
+            0.447 0 -0.894,
+            -0.447 0 -0.894
+        ]
+    }
+
+    IndexedFaceSet {
+        coordIndex [
+            1, 2, 3, 4, -1,
+            0, 1, 2, -1,
+            0, 2, 3, -1,
+            0, 3, 4, -1,
+            0, 4, 1, -1
+        ]
+    }
+}
