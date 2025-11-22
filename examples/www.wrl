@@ -1,0 +1,40 @@
+#VRML V1.0 ascii
+
+# WWW example
+# Demonstrates hyperlinks and inline content
+
+Separator {
+    DirectionalLight {
+        direction 0 0 -1
+    }
+
+    PerspectiveCamera {
+        position 0 0 10
+    }
+
+    # Clickable sphere that links to VRML spec
+    WWWAnchor {
+        name "http://www.eit.com/vrml/vrmlspec.html"
+        description "VRML 1.0 Specification"
+
+        Separator {
+            Material {
+                diffuseColor 0 0 1
+            }
+            Sphere {
+                radius 1.5
+            }
+        }
+    }
+
+    # Inline content from external file
+    # (In the actual browser, this would load another VRML file)
+    Translation {
+        translation 4 0 0
+    }
+
+    WWWInline {
+        name "http://www.example.com/object.wrl"
+        bboxSize 2 2 2
+    }
+}

@@ -1,0 +1,32 @@
+#VRML V1.0 ascii
+
+# Colored cube example
+# Demonstrates transform nodes and multiple materials
+
+Separator {
+    DirectionalLight {
+        direction 0 0 -1
+    }
+
+    PerspectiveCamera {
+        position 0 0 10
+        orientation 0 0 1 0
+    }
+
+    # Rotate the cube
+    Transform {
+        rotation 1 1 0 0.785398
+    }
+
+    # Green material
+    Material {
+        diffuseColor 0 1 0
+    }
+
+    # Unit cube
+    Cube {
+        width 2
+        height 2
+        depth 2
+    }
+}

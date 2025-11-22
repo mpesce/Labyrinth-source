@@ -9,12 +9,16 @@ CXXFLAGS = -Wall -g -I./include
 CFLAGS = -Wall -g -I./include
 AR = ar
 ARFLAGS = rcs
+YACC = bison -y
+LEX = flex
 
 # Directories
 QVLIB_SRC_DIR = src/QvLib
 WWW_SRC_DIR = src/WWW
+PARSER_SRC_DIR = src/parser
 OBJ_DIR = obj
 WWW_OBJ_DIR = obj/WWW
+PARSER_OBJ_DIR = obj/parser
 LIB_DIR = lib
 
 # QvLib source files (all QvLib implementations - 37 files)
@@ -62,16 +66,28 @@ WWW_SRCS = $(WWW_SRC_DIR)/HTTP.c \
            $(WWW_SRC_DIR)/HTParse.c \
            $(WWW_SRC_DIR)/HTTCP.c
 
+# Parser files
+PARSER_YACC = $(PARSER_SRC_DIR)/vrml.y
+PARSER_LEX = $(PARSER_SRC_DIR)/vrml.l
+PARSER_YACC_C = $(PARSER_SRC_DIR)/y.tab.c
+PARSER_YACC_H = $(PARSER_SRC_DIR)/y.tab.h
+PARSER_LEX_C = $(PARSER_SRC_DIR)/lex.yy.c
+PARSER_SRCS = $(PARSER_SRC_DIR)/QvParser.cpp
+
 # Object files
 QVLIB_OBJS = $(QVLIB_SRCS:$(QVLIB_SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 WWW_OBJS = $(WWW_SRCS:$(WWW_SRC_DIR)/%.c=$(WWW_OBJ_DIR)/%.o)
+PARSER_OBJS = $(PARSER_OBJ_DIR)/y.tab.o \
+              $(PARSER_OBJ_DIR)/lex.yy.o \
+              $(PARSER_OBJ_DIR)/QvParser.o
 
 # Target libraries
 LIBQV = $(LIB_DIR)/libQvLib.a
 LIBWWW = $(LIB_DIR)/libWWW.a
+LIBPARSER = $(LIB_DIR)/libVRMLParser.a
 
 # Default target
-all: $(LIBQV) $(LIBWWW)
+all: $(LIBQV) $(LIBWWW) $(LIBPARSER)
 
 # Create directories
 $(OBJ_DIR):
@@ -79,6 +95,9 @@ $(OBJ_DIR):
 
 $(WWW_OBJ_DIR):
 	mkdir -p $(WWW_OBJ_DIR)
+
+$(PARSER_OBJ_DIR):
+	mkdir -p $(PARSER_OBJ_DIR)
 
 $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
@@ -99,9 +118,34 @@ $(LIBQV): $(QVLIB_OBJS) | $(LIB_DIR)
 $(LIBWWW): $(WWW_OBJS) | $(LIB_DIR)
 	$(AR) $(ARFLAGS) $@ $^
 
+# Generate parser from YACC grammar
+$(PARSER_YACC_C) $(PARSER_YACC_H): $(PARSER_YACC)
+	cd $(PARSER_SRC_DIR) && $(YACC) -d vrml.y
+
+# Generate lexer from LEX specification
+$(PARSER_LEX_C): $(PARSER_LEX) $(PARSER_YACC_H)
+	cd $(PARSER_SRC_DIR) && $(LEX) vrml.l
+
+# Compile parser YACC output
+$(PARSER_OBJ_DIR)/y.tab.o: $(PARSER_YACC_C) | $(PARSER_OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
+
+# Compile parser LEX output
+$(PARSER_OBJ_DIR)/lex.yy.o: $(PARSER_LEX_C) | $(PARSER_OBJ_DIR)
+	$(CC) $(CFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
+
+# Compile parser interface
+$(PARSER_OBJ_DIR)/QvParser.o: $(PARSER_SRCS) $(PARSER_YACC_H) | $(PARSER_OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -I$(PARSER_SRC_DIR) -c $< -o $@
+
+# Link parser library
+$(LIBPARSER): $(PARSER_OBJS) | $(LIB_DIR)
+	$(AR) $(ARFLAGS) $@ $^
+
 # Clean build artifacts
 clean:
 	rm -rf $(OBJ_DIR) $(LIB_DIR)
+	rm -f $(PARSER_YACC_C) $(PARSER_YACC_H) $(PARSER_LEX_C)
 
 # Rebuild everything
 rebuild: clean all

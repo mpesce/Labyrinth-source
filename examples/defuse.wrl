@@ -1,0 +1,50 @@
+#VRML V1.0 ascii
+
+# DEF/USE example
+# Demonstrates node reuse with DEF and USE keywords
+
+Separator {
+    DirectionalLight {
+        direction 0 0 -1
+    }
+
+    PerspectiveCamera {
+        position 0 0 15
+    }
+
+    # Define a red material
+    DEF RedMaterial Material {
+        diffuseColor 1 0 0
+    }
+
+    # Define a sphere
+    DEF UnitSphere Sphere {
+        radius 1.0
+    }
+
+    # First sphere on left
+    Separator {
+        Translation {
+            translation -3 0 0
+        }
+        USE RedMaterial
+        USE UnitSphere
+    }
+
+    # Second sphere in center with different material
+    Separator {
+        Material {
+            diffuseColor 0 1 0
+        }
+        USE UnitSphere
+    }
+
+    # Third sphere on right
+    Separator {
+        Translation {
+            translation 3 0 0
+        }
+        USE RedMaterial
+        USE UnitSphere
+    }
+}
