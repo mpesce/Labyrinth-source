@@ -170,7 +170,7 @@ usedNode:
     {
         /* USE name - look up node in dictionary */
         /* Error: "Premature end of file after USE" */
-        QvNode* existing = QvNode::lookupName($2);
+        QvNode* existing = QvNode::findByName($2);
         if (existing != NULL) {
             existing->ref();
             $$ = existing;

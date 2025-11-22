@@ -12,16 +12,15 @@
 #define HTTCP_H
 
 #include "HTUtils.h"
-#include <winsock.h>
 
 /*
- * Initialize Winsock
+ * Initialize networking (Winsock on Windows, no-op on Unix)
  * Returns TRUE on success, FALSE on failure
  */
 BOOL HTTCP_Init(void);
 
 /*
- * Cleanup Winsock
+ * Cleanup networking (Winsock on Windows, no-op on Unix)
  */
 void HTTCP_Cleanup(void);
 

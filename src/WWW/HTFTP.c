@@ -9,11 +9,11 @@
  */
 
 #include "../../include/WWW/HTFTP.h"
+#include "../../include/WWW/HTUtils.h"
 #include "../../include/WWW/HTParse.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <winsock.h>
 
 /* Local functions */
 static char* read_response(HTSocket sock, int* code);

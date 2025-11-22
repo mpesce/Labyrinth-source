@@ -20,7 +20,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <winsock.h>
 
 #define LIBWWW_VERSION "2.17"
 #define USER_AGENT "Labyrinth"
@@ -189,7 +188,7 @@ BOOL HTTP_SendRequest(HTSocket sock, HTTPRequest* request)
 HTTPResponse* HTTP_ReadResponse(HTSocket sock)
 {
     HTTPResponse* response;
-    char buffer[MAX_LINE_LENGTH];
+    char buffer[LINE_LENGTH];
     char* line;
     char* header_value;
 
