@@ -315,10 +315,81 @@ void RenderAction::traverseGroup(QvNode* node)
 void RenderAction::traverseTransform(QvNode* node)
 {
     const char* nodeType = node->getNodeName();
+    QvNodeType type = node->getNodeType();
 
-    /* Apply transform to current matrix */
-    /* Note: This is simplified - real implementation would read fields */
+    /* Apply transform to current matrix based on node type */
+    if (type == QV_TRANSFORM) {
+        QvTransform* transform = (QvTransform*)node;
 
+        /* Build compound transform matrix */
+        Matrix4 mat = Matrix4::makeIdentity();
+
+        /* Translation */
+        mat.translate(transform->translation.value.x,
+                     transform->translation.value.y,
+                     transform->translation.value.z);
+
+        /* Rotation around center */
+        if (transform->center.value.x != 0 || transform->center.value.y != 0 || transform->center.value.z != 0) {
+            mat.translate(transform->center.value.x, transform->center.value.y, transform->center.value.z);
+        }
+
+        /* Scale orientation */
+        if (transform->scaleOrientation.value.angle != 0) {
+            mat.rotate(transform->scaleOrientation.value.angle,
+                      transform->scaleOrientation.value.x,
+                      transform->scaleOrientation.value.y,
+                      transform->scaleOrientation.value.z);
+        }
+
+        /* Scale */
+        mat.scale(transform->scaleFactor.value.x,
+                 transform->scaleFactor.value.y,
+                 transform->scaleFactor.value.z);
+
+        /* Inverse scale orientation */
+        if (transform->scaleOrientation.value.angle != 0) {
+            mat.rotate(-transform->scaleOrientation.value.angle,
+                      transform->scaleOrientation.value.x,
+                      transform->scaleOrientation.value.y,
+                      transform->scaleOrientation.value.z);
+        }
+
+        /* Rotation */
+        mat.rotate(transform->rotation.value.angle,
+                  transform->rotation.value.x,
+                  transform->rotation.value.y,
+                  transform->rotation.value.z);
+
+        /* Inverse center */
+        if (transform->center.value.x != 0 || transform->center.value.y != 0 || transform->center.value.z != 0) {
+            mat.translate(-transform->center.value.x, -transform->center.value.y, -transform->center.value.z);
+        }
+
+        /* Apply to current matrix */
+        currentState->modelMatrix->multiply(mat);
+
+    } else if (type == QV_ROTATION) {
+        QvRotation* rotation = (QvRotation*)node;
+        currentState->modelMatrix->rotate(rotation->rotation.value.angle,
+                                         rotation->rotation.value.x,
+                                         rotation->rotation.value.y,
+                                         rotation->rotation.value.z);
+
+    } else if (type == QV_TRANSLATION) {
+        QvTranslation* translation = (QvTranslation*)node;
+        currentState->modelMatrix->translate(translation->translation.value.x,
+                                            translation->translation.value.y,
+                                            translation->translation.value.z);
+
+    } else if (type == QV_SCALE) {
+        QvScale* scale = (QvScale*)node;
+        currentState->modelMatrix->scale(scale->scaleFactor.value.x,
+                                        scale->scaleFactor.value.y,
+                                        scale->scaleFactor.value.z);
+    }
+
+    /* Notify renderer of transform change */
     if (setTransform) {
         setTransform(currentState->modelMatrix, userData);
     }
@@ -326,9 +397,45 @@ void RenderAction::traverseTransform(QvNode* node)
 
 void RenderAction::traverseMaterial(QvNode* node)
 {
-    /* Update material state */
-    /* Note: This is simplified - real implementation would read fields */
+    QvMaterial* material = (QvMaterial*)node;
 
+    /* Update diffuse color (most important for rendering) */
+    if (material->diffuseColor.num > 0) {
+        currentState->diffuseColor->r = material->diffuseColor.values[0].x;
+        currentState->diffuseColor->g = material->diffuseColor.values[0].y;
+        currentState->diffuseColor->b = material->diffuseColor.values[0].z;
+    }
+
+    /* Update ambient color */
+    if (material->ambientColor.num > 0) {
+        currentState->ambientColor->r = material->ambientColor.values[0].x;
+        currentState->ambientColor->g = material->ambientColor.values[0].y;
+        currentState->ambientColor->b = material->ambientColor.values[0].z;
+    }
+
+    /* Update specular color */
+    if (material->specularColor.num > 0) {
+        currentState->specularColor->r = material->specularColor.values[0].x;
+        currentState->specularColor->g = material->specularColor.values[0].y;
+        currentState->specularColor->b = material->specularColor.values[0].z;
+    }
+
+    /* Update emissive color */
+    if (material->emissiveColor.num > 0) {
+        currentState->emissiveColor->r = material->emissiveColor.values[0].x;
+        currentState->emissiveColor->g = material->emissiveColor.values[0].y;
+        currentState->emissiveColor->b = material->emissiveColor.values[0].z;
+    }
+
+    /* Update shininess and transparency */
+    if (material->shininess.num > 0) {
+        currentState->shininess = material->shininess.values[0];
+    }
+    if (material->transparency.num > 0) {
+        currentState->transparency = material->transparency.values[0];
+    }
+
+    /* Notify renderer of material change */
     if (setMaterial) {
         setMaterial(currentState, userData);
     }
@@ -336,28 +443,37 @@ void RenderAction::traverseMaterial(QvNode* node)
 
 void RenderAction::traverseGeometry(QvNode* node)
 {
-    const char* nodeType = node->getNodeName();
+    QvNodeType type = node->getNodeType();
 
-    if (strcmp(nodeType, "Sphere") == 0) {
+    if (type == QV_SPHERE) {
+        QvSphere* sphere = (QvSphere*)node;
         if (drawSphere) {
-            drawSphere(1.0f, userData);  /* Default radius */
+            drawSphere(sphere->radius.value, userData);
         }
-    } else if (strcmp(nodeType, "Cube") == 0) {
+    } else if (type == QV_CUBE) {
+        QvCube* cube = (QvCube*)node;
         if (drawCube) {
-            drawCube(2.0f, 2.0f, 2.0f, userData);  /* Default size */
+            drawCube(cube->width.value, cube->height.value, cube->depth.value, userData);
         }
-    } else if (strcmp(nodeType, "Cone") == 0) {
+    } else if (type == QV_CONE) {
+        QvCone* cone = (QvCone*)node;
         if (drawCone) {
-            drawCone(1.0f, 2.0f, userData);  /* Default size */
+            drawCone(cone->bottomRadius.value, cone->height.value, userData);
         }
-    } else if (strcmp(nodeType, "Cylinder") == 0) {
+    } else if (type == QV_CYLINDER) {
+        QvCylinder* cylinder = (QvCylinder*)node;
         if (drawCylinder) {
-            drawCylinder(1.0f, 2.0f, userData);  /* Default size */
+            drawCylinder(cylinder->radius.value, cylinder->height.value, userData);
         }
-    } else if (strcmp(nodeType, "IndexedFaceSet") == 0) {
-        /* TODO: Extract coordinate and index data from fields */
-        if (drawIndexedFaceSet) {
-            /* drawIndexedFaceSet(...) */
+    } else if (type == QV_INDEXED_FACE_SET) {
+        QvIndexedFaceSet* faceSet = (QvIndexedFaceSet*)node;
+        if (drawIndexedFaceSet && faceSet->coordIndex.num > 0) {
+            /* Get coordinate data from coordIndex field */
+            /* Note: coordIndex.values is long*, callback expects int* */
+            /* For now, cast it - proper implementation would handle coordinate nodes */
+
+            drawIndexedFaceSet((int*)faceSet->coordIndex.values,
+                             faceSet->coordIndex.num, NULL, 0, userData);
         }
     }
 }
