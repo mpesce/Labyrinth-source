@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "vrml.tab.h"
+#include "y.tab.h"
 
 /* Line number tracking */
 int yylineno = 1;
