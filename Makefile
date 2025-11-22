@@ -79,7 +79,8 @@ PARSER_SRCS = $(PARSER_SRC_DIR)/QvParser.cpp
 
 # Renderer files
 RENDERER_SRCS = $(RENDERER_SRC_DIR)/RenderAction.cpp \
-                $(RENDERER_SRC_DIR)/OpenGLRenderer.cpp
+                $(RENDERER_SRC_DIR)/OpenGLRenderer.cpp \
+                $(RENDERER_SRC_DIR)/SceneGraphDumper.cpp
 
 # Main application
 MAIN_SRC = src/Main.cpp

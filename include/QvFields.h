@@ -63,6 +63,8 @@ public:
 
     void addField(QvField* field, const char* name);
     QvField* getField(const char* name);
+    QvField* getField(int index, const char** name = NULL) const;
+    const char* getFieldName(int index) const;
     int getNumFields() const;
 
 private:

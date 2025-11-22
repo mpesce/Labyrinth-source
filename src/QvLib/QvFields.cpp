@@ -55,6 +55,25 @@ QvField* QvFieldData::getField(const char* name)
     return NULL;
 }
 
+QvField* QvFieldData::getField(int index, const char** name) const
+{
+    if (index < 0 || index >= numFields) {
+        return NULL;
+    }
+    if (name != NULL) {
+        *name = fields[index].name;
+    }
+    return fields[index].field;
+}
+
+const char* QvFieldData::getFieldName(int index) const
+{
+    if (index < 0 || index >= numFields) {
+        return NULL;
+    }
+    return fields[index].name;
+}
+
 int QvFieldData::getNumFields() const
 {
     return numFields;

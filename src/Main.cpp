@@ -18,6 +18,7 @@
 #include "../include/QvParser.h"
 #include "../include/QvNode.h"
 #include "../include/renderer/OpenGLRenderer.h"
+#include "../include/renderer/SceneGraphDumper.h"
 
 /* Default world if no file specified */
 static const char* DEFAULT_WORLD = "examples/simple.wrl";
@@ -37,8 +38,9 @@ void print_usage(const char* program_name)
     printf("Options:\n");
     printf("  -h, --help       Show this help message\n");
     printf("  -v, --version    Show version information\n");
+    printf("  -d, --dump       Dump scene graph structure (text mode)\n");
     printf("  -w, --width N    Set window width (default: 800)\n");
-    printf("  -h, --height N   Set window height (default: 600)\n");
+    printf("  --height N       Set window height (default: 600)\n");
     printf("\n");
     printf("Controls:\n");
     printf("  Mouse drag:      Rotate view\n");
@@ -78,6 +80,7 @@ int main(int argc, char** argv)
     const char* vrml_file = NULL;
     int window_width = 800;
     int window_height = 600;
+    bool dump_mode = false;
     QvNode* scene_root = NULL;
     OpenGLRenderer* renderer = NULL;
     int exit_code = 0;
@@ -90,6 +93,8 @@ int main(int argc, char** argv)
         } else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0) {
             print_version();
             return 0;
+        } else if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--dump") == 0) {
+            dump_mode = true;
         } else if (strcmp(argv[i], "-w") == 0 || strcmp(argv[i], "--width") == 0) {
             if (i + 1 < argc) {
                 window_width = atoi(argv[++i]);
@@ -135,51 +140,58 @@ int main(int argc, char** argv)
     printf("Successfully parsed VRML file\n");
     printf("  Root node type: %s\n", scene_root->getNodeName());
 
-    /* Initialize renderer */
-    printf("\nInitializing OpenGL renderer...\n");
-    printf("  Window size: %dx%d\n", window_width, window_height);
+    /* Choose rendering mode */
+    if (dump_mode) {
+        /* Text mode - dump scene graph structure */
+        SceneGraphDumper dumper;
+        dumper.dump(scene_root);
+    } else {
+        /* Graphics mode - OpenGL renderer */
+        printf("\nInitializing OpenGL renderer...\n");
+        printf("  Window size: %dx%d\n", window_width, window_height);
 
-    renderer = new OpenGLRenderer();
-    if (!renderer->initialize(window_width, window_height, "Labyrinth VRML Browser")) {
-        fprintf(stderr, "ERROR: Failed to initialize renderer\n");
-        exit_code = 1;
-        goto cleanup;
+        renderer = new OpenGLRenderer();
+        if (!renderer->initialize(window_width, window_height, "Labyrinth VRML Browser")) {
+            fprintf(stderr, "ERROR: Failed to initialize renderer\n");
+            exit_code = 1;
+            goto cleanup;
+        }
+
+        printf("Renderer initialized\n");
+        printf("\n");
+        printf("NOTE: This is a stub implementation.\n");
+        printf("To build with full OpenGL support:\n");
+        printf("  1. Install GLFW3: sudo apt-get install libglfw3-dev\n");
+        printf("  2. Install GLEW: sudo apt-get install libglew-dev\n");
+        printf("  3. Uncomment OpenGL headers in OpenGLRenderer.cpp\n");
+        printf("  4. Build with: make OPENGL=1\n");
+        printf("  5. Run with: ./labyrinth scene.wrl\n");
+        printf("\n");
+
+        /* Render loop (stub) */
+        printf("Starting render loop...\n");
+        printf("(In full implementation, this would display the 3D scene)\n");
+        printf("\n");
+
+        /* In a real implementation:
+         *
+         * while (!renderer->shouldClose()) {
+         *     renderer->beginFrame();
+         *     renderer->clear();
+         *     renderer->processInput(deltaTime);
+         *     renderer->renderScene(scene_root);
+         *     renderer->endFrame();
+         *     renderer->pollEvents();
+         * }
+         */
+
+        /* For now, just traverse and print */
+        printf("Scene graph traversal:\n");
+        renderer->renderScene(scene_root);
+
+        printf("\nPress ENTER to exit...\n");
+        getchar();
     }
-
-    printf("Renderer initialized\n");
-    printf("\n");
-    printf("NOTE: This is a stub implementation.\n");
-    printf("To build with full OpenGL support:\n");
-    printf("  1. Install GLFW3: sudo apt-get install libglfw3-dev\n");
-    printf("  2. Install GLEW: sudo apt-get install libglew-dev\n");
-    printf("  3. Uncomment OpenGL headers in OpenGLRenderer.cpp\n");
-    printf("  4. Build with: make OPENGL=1\n");
-    printf("  5. Run with: ./labyrinth scene.wrl\n");
-    printf("\n");
-
-    /* Render loop (stub) */
-    printf("Starting render loop...\n");
-    printf("(In full implementation, this would display the 3D scene)\n");
-    printf("\n");
-
-    /* In a real implementation:
-     *
-     * while (!renderer->shouldClose()) {
-     *     renderer->beginFrame();
-     *     renderer->clear();
-     *     renderer->processInput(deltaTime);
-     *     renderer->renderScene(scene_root);
-     *     renderer->endFrame();
-     *     renderer->pollEvents();
-     * }
-     */
-
-    /* For now, just traverse and print */
-    printf("Scene graph traversal:\n");
-    renderer->renderScene(scene_root);
-
-    printf("\nPress ENTER to exit...\n");
-    getchar();
 
 cleanup:
     /* Cleanup */
