@@ -1,0 +1,37 @@
+#VRML V1.0 ascii
+
+# Texture mapping test
+# Tests Texture2 and TextureCoordinate2 nodes
+
+Separator {
+    DirectionalLight {
+        direction 0 -1 -1
+        color 1 1 0.9
+        intensity 0.8
+    }
+
+    # Textured quad
+    Separator {
+        Material {
+            diffuseColor 1 1 1
+        }
+
+        Texture2 {
+            filename "test-texture.gif"
+            wrapS REPEAT
+            wrapT REPEAT
+        }
+
+        Coordinate3 {
+            point [ -2 -2 0, 2 -2 0, 2 2 0, -2 2 0 ]
+        }
+
+        TextureCoordinate2 {
+            point [ 0 0, 1 0, 1 1, 0 1 ]
+        }
+
+        IndexedFaceSet {
+            coordIndex [ 0, 1, 2, 3, -1 ]
+        }
+    }
+}

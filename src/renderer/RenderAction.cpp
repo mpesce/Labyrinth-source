@@ -20,6 +20,7 @@
 #include "../../include/QvCoordinate3.h"
 #include "../../include/QvNormal.h"
 #include "../../include/QvTextureCoordinate2.h"
+#include "../../include/QvTexture2.h"
 #include "../../include/QvPerspectiveCamera.h"
 #include "../../include/QvOrthographicCamera.h"
 #include "../../include/QvDirectionalLight.h"
@@ -54,6 +55,7 @@ RenderState::RenderState()
     currentCoordinates = NULL;
     currentNormals = NULL;
     currentTexCoords = NULL;
+    currentTexture = NULL;
 }
 
 RenderState::~RenderState()
@@ -89,6 +91,7 @@ RenderState* RenderState::copy() const
     newState->currentCoordinates = currentCoordinates;
     newState->currentNormals = currentNormals;
     newState->currentTexCoords = currentTexCoords;
+    newState->currentTexture = currentTexture;
 
     return newState;
 }
@@ -227,6 +230,7 @@ RenderAction::RenderAction()
     drawIndexedLineSet = NULL;
     addLight = NULL;
     setCamera = NULL;
+    loadTexture = NULL;
     userData = NULL;
 }
 
@@ -300,6 +304,10 @@ void RenderAction::traverseNode(QvNode* node)
     } else if (strcmp(nodeType, "TextureCoordinate2") == 0) {
         /* Store current texture coordinates */
         currentState->currentTexCoords = (QvTextureCoordinate2*)node;
+    } else if (strcmp(nodeType, "Texture2") == 0) {
+        /* Store and load current texture */
+        currentState->currentTexture = (QvTexture2*)node;
+        traverseTexture(node);
     } else if (strcmp(nodeType, "PerspectiveCamera") == 0 ||
                strcmp(nodeType, "OrthographicCamera") == 0) {
         traverseCamera(node);
@@ -633,4 +641,27 @@ void RenderAction::traverseLight(QvNode* node)
     /* Pass light to renderer */
     addLight(lightCount, lightType, position, direction, color, intensity, on, userData);
     lightCount++;
+}
+
+void RenderAction::traverseTexture(QvNode* node)
+{
+    if (!loadTexture) return;
+
+    QvTexture2* texture = (QvTexture2*)node;
+
+    /* Get texture filename */
+    const char* filename = texture->filename.value;
+    if (filename == NULL || filename[0] == '\0') {
+        /* No filename, texture disabled */
+        currentState->textureEnabled = false;
+        return;
+    }
+
+    /* Get wrap modes (REPEAT=0, CLAMP=1) */
+    int wrapS = texture->wrapS.value;
+    int wrapT = texture->wrapT.value;
+
+    /* Call renderer to load texture */
+    loadTexture(filename, wrapS, wrapT, userData);
+    currentState->textureEnabled = true;
 }

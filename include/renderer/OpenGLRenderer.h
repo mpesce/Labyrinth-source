@@ -12,6 +12,8 @@
 #define OPENGL_RENDERER_H
 
 #include "RenderAction.h"
+#include <map>
+#include <string>
 
 /* Forward declaration for GLFW */
 struct GLFWwindow;
@@ -101,6 +103,11 @@ private:
     float currentSpecular[3];
     float currentShininess;
 
+    /* Texture tracking */
+    unsigned int currentTextureId;
+    bool currentTextureEnabled;
+    std::map<std::string, unsigned int> textureCache;  /* filename -> texture ID */
+
     /* Shader compilation */
     bool compileShaders();
     unsigned int compileShader(const char* source, unsigned int type);
@@ -108,6 +115,9 @@ private:
 
     /* Helper to apply current transform and material */
     void applyCurrentState();
+
+    /* Texture loading */
+    unsigned int loadTextureFromFile(const char* filename, int wrapS, int wrapT);
 
     /* Geometry generation */
     void generateSphere(float radius, int segments);
@@ -135,6 +145,7 @@ private:
                             float* color, float intensity, bool on, void* userData);
     static void cb_setCamera(int type, float* position, float* orientation,
                              float fov, float aspectRatio, void* userData);
+    static void cb_loadTexture(const char* filename, int wrapS, int wrapT, void* userData);
 
     /* GLFW callbacks */
     static void mouse_callback(GLFWwindow* window, double xpos, double ypos);

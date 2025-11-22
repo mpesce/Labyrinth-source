@@ -24,6 +24,7 @@ class Color;
 class QvCoordinate3;
 class QvNormal;
 class QvTextureCoordinate2;
+class QvTexture2;
 
 /*
  * Rendering state stack
@@ -58,6 +59,7 @@ public:
     QvCoordinate3* currentCoordinates;          /* For IndexedFaceSet/IndexedLineSet */
     QvNormal* currentNormals;                   /* For smooth shading */
     QvTextureCoordinate2* currentTexCoords;     /* For texture mapping */
+    QvTexture2* currentTexture;                 /* Current texture image */
 
     RenderState();
     ~RenderState();
@@ -102,6 +104,7 @@ public:
                      float* color, float intensity, bool on, void* userData);
     void (*setCamera)(int type, float* position, float* orientation,
                       float fov, float aspectRatio, void* userData);
+    void (*loadTexture)(const char* filename, int wrapS, int wrapT, void* userData);
 
     void* userData;
 
@@ -122,6 +125,7 @@ private:
     void traverseGeometry(QvNode* node);
     void traverseCamera(QvNode* node);
     void traverseLight(QvNode* node);
+    void traverseTexture(QvNode* node);
 };
 
 /* Math helper classes */
