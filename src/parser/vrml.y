@@ -80,6 +80,9 @@ static QvNode* pop_current_node() {
     return NULL;
 }
 
+/* Current field name for array parsing */
+static char* current_field_name = NULL;
+
 /* Error messages from strings analysis */
 void yyerror(const char* s);
 int yylex(void);
@@ -329,10 +332,18 @@ fieldDeclaration:
         set_field_rotation(current_node, $1, $2.x, $2.y, $2.z, $2.angle);
         free($1);
     }
-    | IDENTIFIER fieldArray
+    | IDENTIFIER {
+        /* Save field name for array element parsing */
+        if (current_field_name) free(current_field_name);
+        current_field_name = strdup($1);
+    } fieldArray
     {
-        /* Array field assignments handled separately */
+        /* Cleanup */
         free($1);
+        if (current_field_name) {
+            free(current_field_name);
+            current_field_name = NULL;
+        }
     }
     ;
 
@@ -381,10 +392,42 @@ fieldValueList:
 
 arrayElement:
     number
+    {
+        /* Add number to multi-value field */
+        if (current_field_name) {
+            set_field_int(current_node, current_field_name, (int)$1);
+            set_field_float(current_node, current_field_name, $1);
+        }
+    }
     | STRING
+    {
+        /* Add string to multi-value field */
+        if (current_field_name) {
+            set_field_string(current_node, current_field_name, $1);
+        }
+        free($1);
+    }
     | vec2f
+    {
+        /* Add vec2f to multi-value field */
+        if (current_field_name) {
+            set_field_vec2f(current_node, current_field_name, $1.x, $1.y);
+        }
+    }
     | vec3f
+    {
+        /* Add vec3f to multi-value field */
+        if (current_field_name) {
+            set_field_vec3f(current_node, current_field_name, $1.x, $1.y, $1.z);
+        }
+    }
     | rotation
+    {
+        /* Add rotation to multi-value field */
+        if (current_field_name) {
+            set_field_rotation(current_node, current_field_name, $1.x, $1.y, $1.z, $1.angle);
+        }
+    }
     ;
 
 %%

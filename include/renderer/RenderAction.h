@@ -20,6 +20,9 @@ class Matrix4;
 class Vector3;
 class Color;
 
+/* Forward declarations */
+class QvCoordinate3;
+
 /*
  * Rendering state stack
  * Maintains current transform, material, texture, etc.
@@ -48,6 +51,9 @@ public:
     int vertexOrdering;    /* UNKNOWN, CLOCKWISE, COUNTERCLOCKWISE */
     int shapeType;         /* UNKNOWN, SOLID */
     int faceType;          /* UNKNOWN, CONVEX */
+
+    /* Geometry property nodes */
+    QvCoordinate3* currentCoordinates;  /* For IndexedFaceSet/IndexedLineSet */
 
     RenderState();
     ~RenderState();
