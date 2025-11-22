@@ -67,12 +67,11 @@
 
 
 /* First part of user prologue.  */
-#line 15 "vrml.y"
+#line 19 "vrml.y"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../include/QvNode.h"
 #include "../include/QvSeparator.h"
 #include "../include/QvGroup.h"
 #include "../include/QvSwitch.h"
@@ -123,7 +122,7 @@ int yylex(void);
 QvNode* create_node(const char* type);
 void add_child_to_group(QvNode* parent, QvNode* child);
 
-#line 127 "y.tab.c"
+#line 126 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -157,6 +156,12 @@ void add_child_to_group(QvNode* parent, QvNode* child);
 #if YYDEBUG
 extern int yydebug;
 #endif
+/* "%code requires" blocks.  */
+#line 15 "vrml.y"
+
+#include "../include/QvNode.h"
+
+#line 165 "y.tab.c"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
@@ -272,14 +277,14 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 71 "vrml.y"
+#line 74 "vrml.y"
 
     int             intval;
     float           floatval;
     char*           stringval;
     QvNode*         node;
 
-#line 283 "y.tab.c"
+#line 288 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -754,13 +759,13 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   116,   116,   124,   127,   142,   146,   150,   157,   169,
-     186,   194,   195,   196,   197,   198,   199,   200,   201,   202,
-     203,   204,   205,   206,   207,   208,   209,   210,   211,   212,
-     213,   214,   215,   216,   217,   218,   219,   220,   221,   222,
-     223,   224,   225,   226,   227,   228,   231,   233,   234,   238,
-     247,   248,   249,   250,   251,   252,   253,   257,   261,   265,
-     269,   272,   274,   275,   276
+       0,   119,   119,   127,   130,   145,   149,   153,   160,   172,
+     189,   197,   198,   199,   200,   201,   202,   203,   204,   205,
+     206,   207,   208,   209,   210,   211,   212,   213,   214,   215,
+     216,   217,   218,   219,   220,   221,   222,   223,   224,   225,
+     226,   227,   228,   229,   230,   231,   234,   236,   237,   241,
+     250,   251,   252,   253,   254,   255,   256,   260,   264,   268,
+     272,   275,   277,   278,   279
 };
 #endif
 
@@ -1387,23 +1392,23 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* vrmlFile: HEADER vrmlScene  */
-#line 117 "vrml.y"
+#line 120 "vrml.y"
     {
         vrml_root = (yyvsp[0].node);
     }
-#line 1395 "y.tab.c"
+#line 1400 "y.tab.c"
     break;
 
   case 3: /* vrmlScene: %empty  */
-#line 124 "vrml.y"
+#line 127 "vrml.y"
     {
         (yyval.node) = NULL;
     }
-#line 1403 "y.tab.c"
+#line 1408 "y.tab.c"
     break;
 
   case 4: /* vrmlScene: vrmlScene node  */
-#line 128 "vrml.y"
+#line 131 "vrml.y"
     {
         if ((yyvsp[-1].node) == NULL) {
             /* Create implicit root Separator */
@@ -1415,35 +1420,35 @@ yyreduce:
             add_child_to_group((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1419 "y.tab.c"
+#line 1424 "y.tab.c"
     break;
 
   case 5: /* node: nodeGuts  */
-#line 143 "vrml.y"
+#line 146 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1427 "y.tab.c"
+#line 1432 "y.tab.c"
     break;
 
   case 6: /* node: definedNode  */
-#line 147 "vrml.y"
+#line 150 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1435 "y.tab.c"
+#line 1440 "y.tab.c"
     break;
 
   case 7: /* node: usedNode  */
-#line 151 "vrml.y"
+#line 154 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1443 "y.tab.c"
+#line 1448 "y.tab.c"
     break;
 
   case 8: /* definedNode: DEF IDENTIFIER node  */
-#line 158 "vrml.y"
+#line 161 "vrml.y"
     {
         /* DEF name node - assign name and add to dictionary */
         (yyval.node) = (yyvsp[0].node);
@@ -1452,11 +1457,11 @@ yyreduce:
         }
         free((yyvsp[-1].stringval));
     }
-#line 1456 "y.tab.c"
+#line 1461 "y.tab.c"
     break;
 
   case 9: /* usedNode: USE IDENTIFIER  */
-#line 170 "vrml.y"
+#line 173 "vrml.y"
     {
         /* USE name - look up node in dictionary */
         /* Error: "Premature end of file after USE" */
@@ -1470,240 +1475,240 @@ yyreduce:
         }
         free((yyvsp[0].stringval));
     }
-#line 1474 "y.tab.c"
+#line 1479 "y.tab.c"
     break;
 
   case 10: /* nodeGuts: nodeName LBRACE nodeBody RBRACE  */
-#line 187 "vrml.y"
+#line 190 "vrml.y"
     {
         (yyval.node) = create_node((yyvsp[-3].stringval));
         free((yyvsp[-3].stringval));
     }
-#line 1483 "y.tab.c"
+#line 1488 "y.tab.c"
     break;
 
   case 11: /* nodeName: SEPARATOR  */
-#line 194 "vrml.y"
+#line 197 "vrml.y"
                         { (yyval.stringval) = strdup("Separator"); }
-#line 1489 "y.tab.c"
+#line 1494 "y.tab.c"
     break;
 
   case 12: /* nodeName: TRANSFORMSEPARATOR  */
-#line 195 "vrml.y"
+#line 198 "vrml.y"
                          { (yyval.stringval) = strdup("TransformSeparator"); }
-#line 1495 "y.tab.c"
+#line 1500 "y.tab.c"
     break;
 
   case 13: /* nodeName: GROUP  */
-#line 196 "vrml.y"
+#line 199 "vrml.y"
                         { (yyval.stringval) = strdup("Group"); }
-#line 1501 "y.tab.c"
+#line 1506 "y.tab.c"
     break;
 
   case 14: /* nodeName: SWITCH  */
-#line 197 "vrml.y"
+#line 200 "vrml.y"
                         { (yyval.stringval) = strdup("Switch"); }
-#line 1507 "y.tab.c"
+#line 1512 "y.tab.c"
     break;
 
   case 15: /* nodeName: LEVELOFDETAIL  */
-#line 198 "vrml.y"
+#line 201 "vrml.y"
                         { (yyval.stringval) = strdup("LevelOfDetail"); }
-#line 1513 "y.tab.c"
+#line 1518 "y.tab.c"
     break;
 
   case 16: /* nodeName: TRANSFORM  */
-#line 199 "vrml.y"
+#line 202 "vrml.y"
                         { (yyval.stringval) = strdup("Transform"); }
-#line 1519 "y.tab.c"
+#line 1524 "y.tab.c"
     break;
 
   case 17: /* nodeName: ROTATION  */
-#line 200 "vrml.y"
+#line 203 "vrml.y"
                         { (yyval.stringval) = strdup("Rotation"); }
-#line 1525 "y.tab.c"
+#line 1530 "y.tab.c"
     break;
 
   case 18: /* nodeName: TRANSLATION  */
-#line 201 "vrml.y"
+#line 204 "vrml.y"
                         { (yyval.stringval) = strdup("Translation"); }
-#line 1531 "y.tab.c"
+#line 1536 "y.tab.c"
     break;
 
   case 19: /* nodeName: SCALE  */
-#line 202 "vrml.y"
+#line 205 "vrml.y"
                         { (yyval.stringval) = strdup("Scale"); }
-#line 1537 "y.tab.c"
+#line 1542 "y.tab.c"
     break;
 
   case 20: /* nodeName: MATRIXTRANSFORM  */
-#line 203 "vrml.y"
+#line 206 "vrml.y"
                         { (yyval.stringval) = strdup("MatrixTransform"); }
-#line 1543 "y.tab.c"
+#line 1548 "y.tab.c"
     break;
 
   case 21: /* nodeName: MATERIAL  */
-#line 204 "vrml.y"
+#line 207 "vrml.y"
                         { (yyval.stringval) = strdup("Material"); }
-#line 1549 "y.tab.c"
+#line 1554 "y.tab.c"
     break;
 
   case 22: /* nodeName: MATERIALBINDING  */
-#line 205 "vrml.y"
+#line 208 "vrml.y"
                         { (yyval.stringval) = strdup("MaterialBinding"); }
-#line 1555 "y.tab.c"
+#line 1560 "y.tab.c"
     break;
 
   case 23: /* nodeName: NORMALBINDING  */
-#line 206 "vrml.y"
+#line 209 "vrml.y"
                         { (yyval.stringval) = strdup("NormalBinding"); }
-#line 1561 "y.tab.c"
+#line 1566 "y.tab.c"
     break;
 
   case 24: /* nodeName: SHAPEHINTS  */
-#line 207 "vrml.y"
+#line 210 "vrml.y"
                         { (yyval.stringval) = strdup("ShapeHints"); }
-#line 1567 "y.tab.c"
+#line 1572 "y.tab.c"
     break;
 
   case 25: /* nodeName: COORDINATE3  */
-#line 208 "vrml.y"
+#line 211 "vrml.y"
                         { (yyval.stringval) = strdup("Coordinate3"); }
-#line 1573 "y.tab.c"
+#line 1578 "y.tab.c"
     break;
 
   case 26: /* nodeName: NORMAL  */
-#line 209 "vrml.y"
+#line 212 "vrml.y"
                         { (yyval.stringval) = strdup("Normal"); }
-#line 1579 "y.tab.c"
+#line 1584 "y.tab.c"
     break;
 
   case 27: /* nodeName: TEXTURE2  */
-#line 210 "vrml.y"
+#line 213 "vrml.y"
                         { (yyval.stringval) = strdup("Texture2"); }
-#line 1585 "y.tab.c"
+#line 1590 "y.tab.c"
     break;
 
   case 28: /* nodeName: TEXTURE2TRANSFORM  */
-#line 211 "vrml.y"
+#line 214 "vrml.y"
                         { (yyval.stringval) = strdup("Texture2Transform"); }
-#line 1591 "y.tab.c"
+#line 1596 "y.tab.c"
     break;
 
   case 29: /* nodeName: TEXTURECOORDINATE2  */
-#line 212 "vrml.y"
+#line 215 "vrml.y"
                          { (yyval.stringval) = strdup("TextureCoordinate2"); }
-#line 1597 "y.tab.c"
+#line 1602 "y.tab.c"
     break;
 
   case 30: /* nodeName: SPHERE  */
-#line 213 "vrml.y"
+#line 216 "vrml.y"
                         { (yyval.stringval) = strdup("Sphere"); }
-#line 1603 "y.tab.c"
+#line 1608 "y.tab.c"
     break;
 
   case 31: /* nodeName: CUBE  */
-#line 214 "vrml.y"
+#line 217 "vrml.y"
                         { (yyval.stringval) = strdup("Cube"); }
-#line 1609 "y.tab.c"
+#line 1614 "y.tab.c"
     break;
 
   case 32: /* nodeName: CONE  */
-#line 215 "vrml.y"
+#line 218 "vrml.y"
                         { (yyval.stringval) = strdup("Cone"); }
-#line 1615 "y.tab.c"
+#line 1620 "y.tab.c"
     break;
 
   case 33: /* nodeName: CYLINDER  */
-#line 216 "vrml.y"
+#line 219 "vrml.y"
                         { (yyval.stringval) = strdup("Cylinder"); }
-#line 1621 "y.tab.c"
+#line 1626 "y.tab.c"
     break;
 
   case 34: /* nodeName: INDEXEDFACESET  */
-#line 217 "vrml.y"
+#line 220 "vrml.y"
                         { (yyval.stringval) = strdup("IndexedFaceSet"); }
-#line 1627 "y.tab.c"
+#line 1632 "y.tab.c"
     break;
 
   case 35: /* nodeName: INDEXEDLINESET  */
-#line 218 "vrml.y"
+#line 221 "vrml.y"
                         { (yyval.stringval) = strdup("IndexedLineSet"); }
-#line 1633 "y.tab.c"
+#line 1638 "y.tab.c"
     break;
 
   case 36: /* nodeName: POINTSET  */
-#line 219 "vrml.y"
+#line 222 "vrml.y"
                         { (yyval.stringval) = strdup("PointSet"); }
-#line 1639 "y.tab.c"
+#line 1644 "y.tab.c"
     break;
 
   case 37: /* nodeName: DIRECTIONALLIGHT  */
-#line 220 "vrml.y"
+#line 223 "vrml.y"
                         { (yyval.stringval) = strdup("DirectionalLight"); }
-#line 1645 "y.tab.c"
+#line 1650 "y.tab.c"
     break;
 
   case 38: /* nodeName: POINTLIGHT  */
-#line 221 "vrml.y"
+#line 224 "vrml.y"
                         { (yyval.stringval) = strdup("PointLight"); }
-#line 1651 "y.tab.c"
+#line 1656 "y.tab.c"
     break;
 
   case 39: /* nodeName: SPOTLIGHT  */
-#line 222 "vrml.y"
+#line 225 "vrml.y"
                         { (yyval.stringval) = strdup("SpotLight"); }
-#line 1657 "y.tab.c"
+#line 1662 "y.tab.c"
     break;
 
   case 40: /* nodeName: ORTHOGRAPHICCAMERA  */
-#line 223 "vrml.y"
+#line 226 "vrml.y"
                          { (yyval.stringval) = strdup("OrthographicCamera"); }
-#line 1663 "y.tab.c"
+#line 1668 "y.tab.c"
     break;
 
   case 41: /* nodeName: PERSPECTIVECAMERA  */
-#line 224 "vrml.y"
+#line 227 "vrml.y"
                         { (yyval.stringval) = strdup("PerspectiveCamera"); }
-#line 1669 "y.tab.c"
+#line 1674 "y.tab.c"
     break;
 
   case 42: /* nodeName: WWWANCHOR  */
-#line 225 "vrml.y"
+#line 228 "vrml.y"
                         { (yyval.stringval) = strdup("WWWAnchor"); }
-#line 1675 "y.tab.c"
+#line 1680 "y.tab.c"
     break;
 
   case 43: /* nodeName: WWWINLINE  */
-#line 226 "vrml.y"
+#line 229 "vrml.y"
                         { (yyval.stringval) = strdup("WWWInline"); }
-#line 1681 "y.tab.c"
+#line 1686 "y.tab.c"
     break;
 
   case 44: /* nodeName: INFO  */
-#line 227 "vrml.y"
+#line 230 "vrml.y"
                         { (yyval.stringval) = strdup("Info"); }
-#line 1687 "y.tab.c"
+#line 1692 "y.tab.c"
     break;
 
   case 45: /* nodeName: IDENTIFIER  */
-#line 228 "vrml.y"
+#line 231 "vrml.y"
                         { (yyval.stringval) = (yyvsp[0].stringval); /* Unknown node type */ }
-#line 1693 "y.tab.c"
+#line 1698 "y.tab.c"
     break;
 
   case 49: /* fieldDeclaration: IDENTIFIER fieldValue  */
-#line 239 "vrml.y"
+#line 242 "vrml.y"
     {
         /* Field assignments handled in QvNode::readInstance() */
         /* Error strings: "Unknown field", "Couldn't read value for field" */
         free((yyvsp[-1].stringval));
     }
-#line 1703 "y.tab.c"
+#line 1708 "y.tab.c"
     break;
 
 
-#line 1707 "y.tab.c"
+#line 1712 "y.tab.c"
 
       default: break;
     }
@@ -1896,7 +1901,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 279 "vrml.y"
+#line 282 "vrml.y"
 
 
 /*
