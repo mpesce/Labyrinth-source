@@ -110,8 +110,11 @@ CXXFLAGS += -DUSE_OPENGL
 # Platform-specific OpenGL libraries
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
-    # macOS
-    LDFLAGS += -lglfw -framework OpenGL -lGLEW -lm
+    # macOS - Detect Homebrew installation (Apple Silicon or Intel)
+    BREW_PREFIX := $(shell brew --prefix 2>/dev/null || echo /usr/local)
+    CXXFLAGS += -I$(BREW_PREFIX)/include
+    CFLAGS += -I$(BREW_PREFIX)/include
+    LDFLAGS += -L$(BREW_PREFIX)/lib -lglfw -framework OpenGL -lGLEW -lm
 else ifeq ($(UNAME_S),Linux)
     # Linux
     LDFLAGS += -lglfw -lGL -lGLEW -lm
