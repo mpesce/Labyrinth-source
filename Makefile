@@ -105,8 +105,20 @@ LABYRINTH = $(BIN_DIR)/labyrinth
 
 # OpenGL libraries (optional - set OPENGL=1 to enable)
 ifdef OPENGL
-LDFLAGS += -lglfw -lGL -lGLEW -lm
 CXXFLAGS += -DUSE_OPENGL
+
+# Platform-specific OpenGL libraries
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Darwin)
+    # macOS
+    LDFLAGS += -lglfw -framework OpenGL -lGLEW -lm
+else ifeq ($(UNAME_S),Linux)
+    # Linux
+    LDFLAGS += -lglfw -lGL -lGLEW -lm
+else
+    # Windows (MinGW) or other
+    LDFLAGS += -lglfw3 -lopengl32 -lglew32 -lm
+endif
 endif
 
 # Default target

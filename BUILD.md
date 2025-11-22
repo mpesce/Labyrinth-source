@@ -33,7 +33,11 @@ sudo apt-get install build-essential bison flex
 
 **macOS:**
 ```bash
+# Install via Homebrew
 brew install bison flex
+
+# For 3D rendering, also install:
+brew install glfw glew
 ```
 
 **Fedora/RHEL:**
@@ -69,15 +73,36 @@ make
 
 Creates: `bin/labyrinth`
 
-### With OpenGL Support (Future)
+### With OpenGL 3D Rendering
 
-**Note:** Full OpenGL support requires additional dependencies. Current version uses stub implementation.
+**Full OpenGL 3.3+ renderer is now implemented!** Includes:
+- Real-time 3D rendering with Phong lighting
+- Interactive camera controls (WASD movement, mouse rotation, scroll zoom)
+- Geometry generation for all primitives (Sphere, Cube, Cone, Cylinder)
+- Shader-based rendering pipeline
 
-To build with real OpenGL (when implemented):
-
+**Linux (Ubuntu/Debian):**
 ```bash
-# Install OpenGL dependencies first
+# Install OpenGL dependencies
 sudo apt-get install libglfw3-dev libglew-dev
+
+# Build with OpenGL enabled
+make OPENGL=1
+```
+
+**macOS:**
+```bash
+# Install dependencies via Homebrew
+brew install glfw glew
+
+# Build with OpenGL enabled (Makefile auto-detects macOS)
+make OPENGL=1
+```
+
+**Windows (MinGW):**
+```bash
+# Install via MSYS2
+pacman -S mingw-w64-x86_64-glfw mingw-w64-x86_64-glew
 
 # Build with OpenGL enabled
 make OPENGL=1
@@ -325,51 +350,55 @@ Test with example VRML files:
 
 ### ✅ Fully Implemented
 
-- QvLib scene graph (37 VRML node types)
-- WWW library (HTTP, FTP, URL parsing)
-- VRML 1.0 parser (YACC + LEX)
-- Rendering abstraction layer
-- Scene graph traversal
-- Build system
-
-### 🚧 Stub Implementation
-
-- OpenGL renderer (prints traversal but doesn't render)
-- Window management (no GLFW integration yet)
-- Camera controls (interface defined but inactive)
+- **QvLib scene graph** (37 VRML node types)
+- **WWW library** (HTTP, FTP, URL parsing)
+- **VRML 1.0 parser** (YACC + LEX)
+- **Rendering abstraction layer** (RenderAction callbacks)
+- **Scene graph traversal** with visitor pattern
+- **Build system** with cross-platform support
+- **OpenGL 3.3+ renderer** with full 3D rendering
+- **GLFW window management** and event handling
+- **Camera controls** (WASD, mouse rotation, zoom)
+- **Geometry generation** (Sphere, Cube, Cone, Cylinder)
+- **Phong lighting** (ambient, diffuse, specular)
+- **Shader system** (vertex/fragment with GLSL)
 
 ### 📋 To Be Implemented
 
-- Full OpenGL 3.3+ rendering
-- GLFW window and input handling
-- Geometry generation (sphere, cube, cone, cylinder)
-- Texture loading (GIF support)
-- Material and lighting calculations
-- Interactive navigation controls
+- Texture loading and mapping (GIF support)
+- IndexedFaceSet rendering
+- DEF/USE node reuse
+- LOD (Level of Detail) switching
+- Advanced lighting (PointLight, SpotLight)
+- Scene graph state isolation (Separator push/pop)
 
-## Next Steps
+## Running with 3D Rendering
 
-To complete the modern port:
+The OpenGL renderer is fully functional! To experience real-time 3D VRML viewing:
 
-1. **Install OpenGL dependencies:**
+1. **Install OpenGL dependencies** (see platform-specific instructions above)
+
+2. **Build with OpenGL:**
    ```bash
-   sudo apt-get install libglfw3-dev libglew-dev
-   ```
-
-2. **Uncomment OpenGL headers** in `src/renderer/OpenGLRenderer.cpp`
-
-3. **Implement geometry generation** (sphere, cube, etc.)
-
-4. **Add GLFW window creation** and event handling
-
-5. **Build with OpenGL:**
-   ```bash
+   make clean
    make OPENGL=1
    ```
 
-6. **Test with VRML files:**
+3. **Run with VRML files:**
    ```bash
-   ./bin/labyrinth examples/simple.wrl
+   ./bin/labyrinth examples/simple.wrl    # Red sphere with lighting
+   ./bin/labyrinth examples/cube.wrl      # Rotating green cube
+   ```
+
+4. **Interact with the 3D scene:**
+   - **Left mouse button + drag:** Rotate camera view
+   - **Mouse wheel:** Zoom in/out
+   - **W/A/S/D:** Move camera forward/left/backward/right
+   - **ESC:** Exit application
+
+5. **Dump scene graph (text mode):**
+   ```bash
+   ./bin/labyrinth --dump examples/cube.wrl
    ```
 
 ## License
