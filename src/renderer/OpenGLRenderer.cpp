@@ -877,12 +877,22 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
         glEnableVertexAttribArray(2);
 
         /* Draw triangles */
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
+        int numVertices = vertices.size() / 3;
+        printf("DEBUG: Drawing %d vertices (%zu triangles) with glDrawArrays\n",
+               numVertices, vertices.size() / 9);
+        glDrawArrays(GL_TRIANGLES, 0, numVertices);
+
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR) {
+            printf("DEBUG: glDrawArrays ERROR: 0x%x\n", err);
+        }
 
         /* Cleanup */
         glBindVertexArray(0);
         glDeleteBuffers(1, &tempVBO);
         glDeleteVertexArrays(1, &tempVAO);
+    } else {
+        printf("DEBUG: No vertices to draw (vertices.size()=%zu)\n", vertices.size());
     }
 }
 
