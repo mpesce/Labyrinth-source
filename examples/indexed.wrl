@@ -1,0 +1,46 @@
+#VRML V1.0 ascii
+
+# IndexedFaceSet example
+# A simple pyramid
+
+Separator {
+    DirectionalLight {
+        direction 0 0 -1
+    }
+
+    PerspectiveCamera {
+        position 0 3 8
+        orientation 1 0 0 -0.3
+    }
+
+    Material {
+        diffuseColor 0.8 0.8 0.2
+    }
+
+    # Pyramid made from triangular faces
+    Separator {
+        # Vertices
+        Coordinate3 {
+            point [
+                0 2 0,      # Top (0)
+                -1 0 1,     # Base front-left (1)
+                1 0 1,      # Base front-right (2)
+                1 0 -1,     # Base back-right (3)
+                -1 0 -1     # Base back-left (4)
+            ]
+        }
+
+        # Faces (triangles)
+        IndexedFaceSet {
+            coordIndex [
+                # Base
+                1, 2, 3, 4, -1,
+                # Sides
+                0, 1, 2, -1,
+                0, 2, 3, -1,
+                0, 3, 4, -1,
+                0, 4, 1, -1
+            ]
+        }
+    }
+}
