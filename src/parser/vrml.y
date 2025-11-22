@@ -12,14 +12,11 @@
  * See: http://www.eit.com/vrml/vrmlspec.html
  */
 
-%code requires {
-#include "../include/QvNode.h"
-}
-
 %{
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "../include/QvNode.h"
 #include "../include/QvSeparator.h"
 #include "../include/QvGroup.h"
 #include "../include/QvSwitch.h"
