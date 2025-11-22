@@ -1,0 +1,1421 @@
+!This program cannot be run in DOS mode.
+USPVh|9K
+T$8PQSRh8=K
+T$8PQSRhD=K
+T$8PQSRhP=K
+T$8PQSRh\=K
+T$8PQSRh,=K
+															
+																													
+										
+T$(Rh0BK
+T$4VWUPQR
+L$$PRQhtIK
+L$(PhTHK
+T$,@PQhDHK
+D$(Ph,HK
+9\$$tp9_
+D$(Ph8bK
+D$lRPhxxK
+D$TRPhXxK
+T$$QRhDxK
+D$lQRPVS
+D$($@,@<
+D$($@,@<
+D$LQRPh4
+D$dQRPh4
+UPj]j,h8
+<"tu<\u(
+																																																																																																																																																																																																																																
+PP9HH~K+
+Ph9H`~M+
+t$89|$<~
+|$<9l$@~
+l$@9t$D}
+t$D9|$H}
+|$H9l$L}
+D$D9Fxu	
+9|$(~>9\$,~8
+9D$ }.9l$$}(
+D$4PUSWV
+l$$)D$$+
+P	;T$$u	3
+D$X+|$Xu
++T$(+L$,R+D$,Q
++l$(9l$x~
+D$p9l$l~
+D$h9l$d}
+t$h9t$p}
+D$d9D$l}
+t$\9D$X~
+D$X9t$T}
+t$T9D$P}
+D$L;D$D~
+D$H9D$@}
+D$\;D$D|
+T$T;T$L~
+T$P;T$H~
+D$\;D$D}
+D$X;D$@}
++V8R+N<Q+F8P
+L$h;L$`~
+L$`9|$p}	
+L$d;L$\~
+L$\9l$l}	
+L$T9H(u`
+L$T9H(uh
+T$D9P(uh
+T$D9P(up
+\$ ;\$x|
+D$L;D$Tu
+T$DRWVQP
+L$DQWVSP
+L$@QWVSP
+L$H9H(u`
+L$H9H(uh
+\$\9\$du
+t$d9t$lu
+t$d9t$lu
+D$4QPWSU
+D$,RPWSU
+D$8RPWSU
+L$,RQSVWP
+L$,RQWVSP
+L$,RQSVWP
+L$49H(ul
+L$49H(uR
+L$\9H(u`
+L$\9H(uk
+D$ ;D$t|
+T$D9P(uo
+L$P9H(u`
+L$P9H(uh
+L$49H(ul
+L$49H(uR
+<Stv<Ctr
+VC20XC00U
+0123456789abcdef
+p?ffffff
+Copyright (c) 1995, The Community Company.
+Portions Copyright (c) 1993 - 1995, RenderMorphics, Ltd.
+PRERELEASE VERSION - DO NOT REDISTRIBUTE!
+labyrnth.wrl
+home.wrl
+Autoload Home
+Labyrinth VRML WWW Browser
+PLAINTEXT
+BLOCKQUOTE
+/tmp/W3_Cache_
+%s %s: out of memory.
+Program aborted.
+E:\labsrc\WWW\HTFILE.C
+HTSetSuffix
+%s/WWW/%s/%s%s
+Node `%s' means file `%s'
+HTLocalName
+Node `%s' means path `%s'
+localhost
+application/octet-stream
+ directory
+Welcome 
+Can't access requested file.
+Can't open `%s', errno=%d
+HTFile: Opening `%s' gives %p
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_$
+HTGopher: Bad menu item.
+gopher://error.host:1/0
+        
+tn3270://%s/
+tn3270://%s@%s/
+telnet://%s/
+telnet://%s@%s/
+HTGopher: Menu item: %s
+Select one of:
+CSO Search Results
+ Please enter keywords to search for.
+This is a searchable Gopher index.
+ will allow you to search on a person's name in the database.
+ Please enter keywords to search for. The keywords that you enter
+This is a searchable index of a CSO database.
+E:\labsrc\WWW\HTGOPHER.C
+HTLoadGopher
+audio/basic
+text/plain
+www/unknown
+image/gif
+text/html
+HTGopher: Unable to send command.
+HTGopher: Connected, writing command `%s' to socket %d
+HTTPAccess: Unable to connect to remote host for `%s'.
+HTGopher: Looking for %s
+NetToText
+www/present
+E:\labsrc\WWW\HTFORMAT.C
+HTSetPresentation
+HTFormat: File read error %d
+WSAGetLastError returned %d
+www/source
+Sorry, can't convert from %s to %s.
+FTP: Logged in.
+FTP: Login fail: %s
+ACCT noaccount%c%c
+PASS %s@%s%c%c
+PASS %s%c%c
+USER anonymous%c%c
+USER %s%c%c
+FTP connected, socket %d
+FTP: Unable to connect to remote host for `%s'.
+E:\labsrc\WWW\HTFTP.C
+get_connection
+FTP: Existing connection is %d.%d.%d.%d
+FTP: Already have connection for %d.%d.%d.%d.
+FTP: Looking for %s
+FTP: Closing control socket %d
+FTP: They close so we close socket %d
+000 *** TCP read error on response
+Error on rx: closing socket %d
+    Rx: %s
+FTP: Error %d sending command: closing socket %d
+  Tx: %s
+FTP: No control connection set up!!
+close master socket
+FTP: Closed master socket %d
+TCP: Master socket(), bind() and listen() all OK
+PORT %d,%d,%d,%d,%d,%d%c%c
+FTP: bound to port %d on %s
+FTP: This host is %s
+getsockname
+FTP: Opened master socket number %d
+socket for master socket
+HTFTP: file name in %s is %s
+read_directory
+FTP: Closing data socket %d
+TCP: Accepted new socket %d
+NLST%c%c
+CWD %s%c%c
+RETR %s%c%c
+TYPE %s%c%c
+FTP: Port defined.
+0123456789ABCDEF
+E:\labsrc\WWW\HTPARSE.C
+HTEscape
+E:\labsrc\WWW\HTSTRING.C
+HTSACopy
+MIMEParser
+HTMIME: *** Syntax error. (string too long)
+ansfer-encoding:
+HTMIME: Bad character `%c' found where `%s' expected
+MIME: Can't translate! ** 
+HTMIME: MIME content type is %s, converting to %s
+ontent-t
+E:\labsrc\WWW\HTMIME.C
+HTML_new
+HTNews: Parsed address as port %4x, inet %d.%d.%d.%d
+HTNews: Can't find news host `%s'.
+HTNews: Can't find news host `%s'.
+Please define your NNTP server
+HTNews: File %s defines news host as `%s'
+/usr/local/lib/rn/server
+HTNews: NNTPSERVER defined as `%s'
+NNTPSERVER
+HTNews: EOF on read, closing socket %d
+NNTP Response: %s
+HTNews: Unable to send command. Disconnecting.
+NNTP command to be sent: %s
+Network Error: connection lost
+References:
+Newsgroups:
+REFERENCES:
+NEWSGROUPS:
+ORGANIZATION:
+SUBJECT:
+%s %d %d %c
+Newsgroups
+Later articles
+    Block after is %s
+news:%s/%d-%d
+"%s" - %s
+MESSAGE-ID:
+HEAD %d%c%c
+Articles in 
+All available articles in 
+Earlier articles
+    Block before is %s
+%s/%d-%d
+Newsgroup %s,  Articles %d-%d
+    Chunk will be (%d-%d)
+No articles in this range.
+No articles in this group.
+Newsgroup status=%d, count=%d, (%d-%d) required:(%d-%d)
+ %d %d %d %d
+Can't read news info. News host %.20s responded: %.200s
+HTNews: Connected to news host %s.
+Could not access %s.
+ (Check default WorldWideWeb NewsHost ?)
+HTNews: Unable to connect to news host.
+Connecting to NewsHost ...
+ARTICLE 
+HTNews: Looking for %s
+FileWriter
+BlackHole
+HTFWriter: Aborting: file not executed.
+E:\labsrc\WWW\HTFWRITE.C
+Can't open local file to write into.
+Give name of file to save in
+SaveLocally
+Can't save data to file -- please run WWW locally
+http://info.cern.ch:8001/
+_GATEWAY
+E:\labsrc\WWW\HTACCESS.C
+Access forbidden by rule
+**** HTAccess: Internal software error. Please mail www-bug@info.cern.ch!
+**** HTAccess: socket or file number returned by obsolete load routine!
+Unable to access document.
+HTAccess: Can't access `%s'
+HTAccess: `%s' has been accessed, No data left.
+HTAccess: `%s' has been accessed.
+Log: %24.24s %s %s %s
+%24.24s %s %s %s
+HTAccess: Document already in memory.
+HTAccess: loading document %s
+E:\labsrc\WWW\HTRULES.C
+HTRule: *** FAIL `%s'
+HTRule: ...and pass `%s'
+HTTranslate
+For `%s' using `%s'
+HTRule: Pass `%s'
+E:\labsrc\WWW\HTBTREE.C
+HTBTree_new
+HTBTree_add
+text/x-c
+application/x-wais-source
+www/mime
+image/jpeg
+image/x-tiff
+application/postscript
+ghostview %s
+video/x-sgi-movie
+video/x-msvideo
+video/quicktime
+video/mpeg
+text/x-setext
+text/tab-separated-values
+text/richtext
+image/x-xwindowdump
+image/x-xpixmap
+image/x-xbitmap
+image/x-rgb
+image/x-portable-pixmap
+image/x-portable-graymap
+image/x-portable-bitmap
+image/x-portable-anymap
+image/cmu-raster
+image/tiff
+image/ief
+audio/x-wav
+audio/x-aiff
+application/x-ustar
+application/x-tar
+application/x-sv4crc
+.sv4cpio
+application/x-sv4cpio
+application/x-shar
+application/x-gtar
+application/x-cpio
+application/x-bcpio
+application/zip
+application/x-troff-ms
+application/x-troff-me
+application/x-troff-man
+application/x-troff
+.texinfo
+application/x-texinfo
+application/x-tex
+application/x-tcl
+application/x-sh
+application/x-netcdf
+application/x-latex
+application/x-hdf
+application/x-dvi
+application/x-csh
+application/x-compressed
+application/x-rtf
+application/pdf
+application/oda
+SocketWriter
+HTWrite: Error: write() on socket returns %d !!!
+HTWriter_write: Error on socket output stream!!!
+ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/
+SGMLParser
+SGML:  `</%s%c' found!
+Unknown end tag </%s>
+SGML: found = but no value
+SGML: *** Unknown element %s
+SGML:  `<%s/' found!
+SGML: Unknown attribute %s for tag %s
+SGML: Attribute value %s ignored
+SGML: Unknown entity %s
+SGML: Extra end tag </%s> found and ignored.
+SGML: Found </%s> when expecting </%s>. </%s> Ignored.
+SGML: Found </%s> when expecting </%s>. </%s> assumed.
+SGML: Illegal end tag </%s> found.
+SGML: End   </%s>
+E:\labsrc\WWW\SGML.C
+start_element
+SGML: Start <%s>
+SGML_begin
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./
+plaintexttoHTML
+E:\labsrc\WWW\HTMLGEN.C
+HTMLGenerator
+PlainToHTML
+E:\labsrc\WWW\HTLIST.C
+HTList_new
+HTList: Trying to add object %p to a nonexisting list
+HTList_addObject
+E:\labsrc\WWW\HTATOM.C
+HTAtom_for
+E:\labsrc\WWW\HTPLAIN.C
+HTPlain_new
+E:\labsrc\WWW\HTCHUNK.C
+cretion of chunk
+HTChunkPutc
+ logging in with username %s
+ (port %s)
+To access the information you must %s to %s
+Sorry, this browser was compiled without the %s access option.
+When you are connected, log in as %s
+, port %s
+, user name %s
+to host %s
+You can manually connect to this service using %s
+you log in to this information service remotely.
+For security reasons, this is not allowed when
+on your own computer, you would be automatically connected.
+to which you have to log in.  If you were running www
+Sorry, but the service you have selected is one
+Can't output a live session -- it has to be interactive
+TCP: Error %d in `errno' after call to %s() failed.
+Unknown error
+%d.%d.%d.%d
+TCP: Parsed address as port %d, IP address %d.%d.%d.%d
+HTTPAccess: Can't find internet node name `%s'.
+TCP: Local host name is %s
+WWW Alert:  %s
+   %s ...
+ (RETURN for [%s]) 
+new Anchor %p named `%s' is child of %p
+Child anchor %p of parent %p with name `%s' already exists.
+HTAnchor_findChild called with NULL parent.
+New anchor %p has hash %d and address `%s'
+Anchor %p with address `%s' already exists.
+E:\labsrc\WWW\HTANCHOR.C
+HTAnchor_address
+HTAnchor_link
+Linking anchor %p to anchor %p
+StyleSheet: No style named `%s'
+HTTP: close socket %d.
+HTTP: %s
+Sorry, no known way of converting %s to %s.
+HTTP server at %s replies:
+HTTP 5xx status
+Redirection response from server is not handled by this client
+Unknown status reply from server!
+HTTP: close socket %d to retry with HTTP0
+Document address invalid or access not authorised
+HTTP: Rx: %.70s
+HTTP: read returned %d bytes.
+Unexpected network read error on response
+HTTPAccess: Unable to send command.
+HTTP Tx: %s
+User-Agent:  %s/%s  libwww/%s%c%c
+Accept: %s%c%c
+Accept: %s q=%.3f%c%c
+HTTP/1.0
+E:\labsrc\WWW\HTTP.C
+HTLoadHTTP
+HTTP connected, socket %d
+HTTP: Unable to connect to remote host for `%s' (errno = %d).
+HTTPAccess: Direct access for %s
+HTML: ****** Maximum nesting of %d exceded!
+___________________________________
+Preformatted
+BlockQuote
+GlossaryCompact
+Glossary
+Heading7
+Heading6
+Heading5
+Heading4
+Heading3
+Heading2
+Heading1
+E:\labsrc\WWW\HTML.C
+** Internal error: can't parse HTML to %s
+WSRCParser
+keyword-list
+description
+maintainer
+cost-unit
+database-name
+tcp-port
+ip-address
+HTWSRC: Unknown field `%s' in source file
+ NOT GIVEN in source file; 
+Maintainer
+through CERN gateway
+http://info.cern.ch:8001/%s:%s/%s
+Direct access
+wais://%s:%s/%s
+Access links
+ description
+ WAIS source file
+E:\labsrc\WWW\HTWSRC.C
+HTWSRCConvert
+(Unstyled)
+E:\labsrc\VIEWER\GT.C
+HText_New
+GridText: Freeing off cached doc.
+%%%d.%ds%%s
+ (%d/%d)
+split_line
+HTML: Change to style %s
+HText_beginAnchor
+HText: Selecting anchor [%d] at character %d, line %d
+HText: No such anchor in this text!
+http://www.butterfly.net/lab/ushm.wrl
+     [End]
+Labyrinth
+world/shape
+world/labyrinth
+WSOCK32.DLL
+Couldn't create texture map output file.
+texture.ppm
+Couldn't create shape output file.
+shape.xof
+default.style
+WebObject
+E:\labsrc\VIEWER\HTWOP.C
+http://www.eit.com/vrml/vrmlspec.html
+http://www.net.org/~tcc/labyrinth/howto.html
+http://www.net.org/~tcc/labyrinth/navigate.html
+http://bug.village.virginia.edu/vrml/
+http://www.eit.com/~mark/ushm/ushm.wrl
+http://www.eit.com/~mark/soma/soma.wrl
+http://www.iuma.com/vrml/
+Viewing world %s.
+Enter URL:
+End # World definition
+End # Camera definition
+	Field %g %g %g %g
+	Orientation %g %g %g %g %g %g
+	Position %g %g %g
+Camera Begin
+World "%s" Begin
+Error on RLFrameAddVisual.
+Received error %d from RLMeshAddVertex
+Received error %d from RLMeshAddNormal
+Made a billboard.
+Null object in list
+No item was picked.
+MOSAIC.EXE
+error reading local colormap
+couldn't read left/top/width/height
+bogus character 0x%02x, ignoring
+OF / read error on extention function code
+only %d image%s found in file
+EOF / read error on image data
+error reading global colormap
+failed to read screen descriptor
+bad version number, not '87a' or '89a'
+not a GIF file
+error reading magic number
+bad colormap
+got a '%s' extension - please report this to koblas@mips.com
+UNKNOWN (0x%02x)
+gif comment: %s
+Application Extension
+Plain Text Extension
+error in reading DataBlock
+error in getting DataBlock size
+ran off the end of my bits
+circular table entry BIG ERROR
+missing EOD in data stream (common occurence)
+writing output
+too much input data, ignoring extra...
+reading %d by %d%s GIF image
+ interlaced
+skipping image...
+error reading image
+http://fool.netzero.com/carbomb.html
+Car Bomb
+Shapefile
+Position
+Orientation
+Material
+Unexpected end of file within comment
+syntax error
+pcyacc internal stack overflow
+token: %s
+Compilation error: %s
+At or near line %d
+wc: can't open input file '%s'
+WcBeginWorld(objname = %s, opentoken = %s)
+WcEndWorld(closetoken = %s)
+WcBeginObject(objname = %s, opentoken = %s)
+WcEndObject(closetoken = %s)
+WcBeginPoly(opentoken = %s)
+Polygons must have 3 or 4 vertices
+WcEndPoly(closetoken = %s)
+Polygons may only have 3 or 4 vertices
+WcAddVertex(x = %g, y = %g, z = %g)
+WcSetColor(r = %g, g = %g, b = %g)
+WcSetMaterial(specular-component = %g, power-component = %g)
+Text map type must be Flat, Cylinder or Sphere
+Cylinder
+Internal error: null texture map type
+WcSetTexture(txtname = %s, orientx = %g, orienty = %g, mapping = %s)
+WcNormalColor(x = %g, y = %g, z = %g)
+WcSetURL(shapeURL = %s)
+WcSetURL(urlname = %s)
+WcBeginScene(scenename = %s, opentoken = %s)
+WcEndScene(closetoken = %s)
+WcBeginElement(opentoken = %s)
+Scene elements require an object
+WcEndElement(closetoken = %s)
+WcSetElementObject(objname = %s)
+WcSetElementPosition(x = %g, y = %g, z = %g)
+WcSetElementOrientation(dx = %g, dy = %g, dz = %g, ux = %g, uy = %g, uz = %g
+WcSetElementURL(urlspec = "%s")
+WcBeginLight(opentoken = %s)
+Scene lights require an object
+WcEndLight(closetoken = %s)
+Illegal Light type.
+ParallelPoint
+Directional
+WcSetLightObject(objname = %s)
+WcSetLightPosition(x = %g, y = %g, z = %g)
+WcSetLightOrientation(dx = %g, dy = %g, dz = %g, ux = %g, uy = %g, uz = %g
+WcSetCameraPosition(x = %g, y = %g, z = %g)
+WcSetCameraOrientation(dx = %g, dy = %g, dz = %g, ux = %g, uy = %g, uz = %g
+WcSetCameraOrientation(left = %g, right = %g, bottom = %g, top = %g
+IDENTIFIER
+Expected "%s", saw "%s"
+Internal error: bad match token
+=====================Scenes =====================
+================ Objects ===================
+	URL spec: %s
+	Texture Map: (%s, %g, %g, %s)
+	Material: (%g, %g)
+	Color: (%g, %g, %g)
+Object "%s"	[%x]{
+		Texture Map: (%s, %g, %g, %s)
+		Normal: (%g, %g, %g)
+		Material: (%g, %g)
+		Color: (%g, %g, %g)
+		(%g, %g, %g)
+Scene "%s"{
+		Orientation (%g,%g,%g,%g,%g,%g)
+		Position (%g,%g,%g)
+		URL "%s"
+		Object "%s"	[%x]
+		URL of Shape file %s
+	Element {
+		Color %g, %g, %g
+	Light {
+Read was bad
+Things are bad.  File %s did not open.
+Traversing a %s.
+QvLevelOfDetail
+QvSeparator
+QvSwitch
+QvTransformSeparator
+QvCoordinate3
+QvMaterial
+QvMaterialBinding
+QvNormal
+QvNormalBinding
+QvShapeHints
+QvTextureCoordinate2
+QvTexture2
+QvTexture2Transform
+QvDirectionalLight
+QvPointLight
+QvSpotLight
+QvOrthographicCamera
+QvPerspectiveCamera
+QvTransform
+QvRotation
+QvMatrixTransform
+QvTranslation
+--------------------------------------------------------------
+QvCylinder
+QvIndexedFaceSet
+QvIndexedLineSet
+QvPointSet
+QvSphere
+QvWWWAnchor
+QvWWWInline
+QvUnknownNode
+Transformation
+TextureCoordinate2
+Texture2Transformation
+Texture2
+ShapeHints
+NormalBinding
+MaterialBinding
+Coordinate3
+#VRML V1.0 ascii
+Translation
+Transform
+Rotation
+MatrixTransform
+NoOpTransform
+SpotLight
+PointLight
+DirectionalLight
+PerspectiveCamera
+OrthographicCamera
+Reference VRML Parser 1.0
+bottomRadius
+Extra characters ('%c') found in input
+VRML error in %s(): %s
+direction
+intensity
+		Element of type %s
+Couldn't read value for field "%s"
+SFString
+SFRotation
+SFMatrix
+SFBitMask
+Expected '%c' or '%c' but got '%c' while reading value %d
+Couldn't read value %d of field
+Unknown field "%s"
+Bad field specifications for node
+textureCoordIndex
+normalIndex
+materialIndex
+coordIndex
+<Undefined info>
+	Occurred at line %3d
+File does not have a valid header string
+EOF reached before end of comment
+screenArea
+transparency
+shininess
+emissiveColor
+specularColor
+diffuseColor
+ambientColor
+PER_VERTEX_INDEXED
+PER_VERTEX
+PER_FACE_INDEXED
+PER_FACE
+PER_PART_INDEXED
+PER_PART
+QvNode::removeName
+Name "%s" (node %x) is not in dictionary
+Unknown reference "%s"
+Premature end of file after USE
+Expected '%c'; got EOF
+Expected '%c'; got '%c'
+Invalid definition of %s
+No name given after 
+Premature end of file after DEF
+Unknown class "%s"
+WWWInline
+WWWAnchor
+TransformSeparator
+Texture2Transform
+Separator
+PointSet
+LevelOfDetail
+IndexedLineSet
+IndexedFaceSet
+focalDistance
+orientation
+position
+heightAngle
+location
+numPoints
+startIndex
+VRML read error: %s
+rotation
+Expected '%c' or '%c', got '%c' 
+in QvSFBitMask value
+EOF reached before '%c' in QvSFBitMask value
+Unknown QvSFBitMask bit mask value "%s"
+Unknown value ("%s") for QvSFBool 
+(must be TRUE or FALSE)
+Illegal value for QvSFBool: %d (must be 0 or 1)
+Unknown QvSFEnum enumeration value "%s"
+scaleFactor
+CullEnabled
+renderCulling
+FaceType
+UNKNOWN_FACE_TYPE
+ShapeType
+UNKNOWN_SHAPE_TYPE
+COUNTERCLOCKWISE
+CLOCKWISE
+VertexOrdering
+UNKNOWN_ORDERING
+creaseAngle
+faceType
+shapeType
+vertexOrdering
+cutOffAngle
+dropOffRate
+	Stack [%2d] (%s):
+Traversal state:
+whichChild
+filename
+translation
+scaleOrientation
+bboxCenter
+bboxSize
+Can't create shell
+InterSpace
+Can't register shell class
+Open a World File
+VRML Files (*.wrl)
+All Files (*.*)
+Save a World File
+Can't create drawing window
+LABWIN_DRAWING_WINDOW
+Can't register drawing window class
+RL Error
+NTDevice
+viewport
+Problem setting colour
+Problem realizing viewport palette
+obj->object.user_refs >= 0
+obj->object.system_refs >= 0
+api\object\objdes.c
+count <= sizeof(val)/sizeof(val[0])
+count <= sizeof(l)/sizeof(l[0])
+loadxof.c
+(char*)dPtr <= (char*)head->data + totalSize
+bad argument value
+device is not compatible with renderer
+data file is corrupt
+file cannot be opened
+unimplemented
+object not found in specified place
+face already used in a mesh
+out of memory
+bad argument type passed
+object expected in argument
+no error
+FXTOI(mx->x1) >= view->viewport.x && FXTOI(mx->y1) >= view->viewport.y && FXTOI(mx->x2) <= view->viewport.x+view->viewport.width && FXTOI(mx->y2) <= view->viewport.y+view->viewport.height
+device.c
+Object101030001
+object.c
+PaletteDevice
+GeneralDevice
+Viewport
+dst->tilemap.width == src->tilemap.width && dst->tilemap.height == src->tilemap.height
+tilemap.c
+RampDevice
+MeshRenderer
+RGBPalDevice
+RGBDevice
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+																	
+									
+									
+								
+								
+									
+									
+								
+								
+									
+								
+								
+								
+									
+									
+								
+								
+    !!!!""""####$$$$%%%%&&&&''''(((())))*****++++,,,,----....////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>?????
+    !!!!""""####$$$$%%%%&&&&''''(((())))*****++++,,,,----....////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>??
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----....////00000111122223333444455556666777788889999::::;;;;<<<<====>>>>????
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----..../////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>?
+    !!!!""""####$$$$%%%%&&&&''''(((())))*****++++,,,,----....////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>???
+    !!!!""""####$$$$%%%%&&&&''''(((())))*****++++,,,,----....////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>????
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----..../////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>??
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----..../////0000111122223333444455556666777788889999::::;;;;<<<<====>>>>???
+     !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----....////00001111222233334444555556666777788889999::::;;;;<<<<====>>>>????
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----....////00001111222233334444455556666777788889999::::;;;;<<<<====>>>>?
+    !!!!""""####$$$$%%%%%&&&&''''(((())))****++++,,,,----....////0000111122223333444455556666777788889999:::::;;;;<<<<====>>>>????
+    !!!!""""####$$$$$%%%%&&&&''''(((())))****++++,,,,----....////00001111222233334444555566667777888899999::::;;;;<<<<====>>>>?
+    !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----....////00001111222233334444455556666777788889999::::;;;;<<<<====>>>>??
+     !!!!""""####$$$$%%%%&&&&''''(((())))****++++,,,,----....////00001111222233334444555556666777788889999::::;;;;<<<<====>>>>???
+    !!!!""""####$$$$%%%%%&&&&''''(((())))****++++,,,,----....////0000111122223333444455556666777788889999:::::;;;;<<<<====>>>>??
+    !!!!""""####$$$$%%%%%&&&&''''(((())))****++++,,,,----....////0000111122223333444455556666777788889999:::::;;;;<<<<====>>>>???
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>???@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__```aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnoopppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..///00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^___``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+   !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//00112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnoooppqqrrssttuuvvwwxxyyzz{{||}}~~
+  !!""##$$%%&&''(())**++,,--..//000112233445566778899::;;<<==>>??@@AABBCCDDEEFFGGHHIIJJKKLLMMNNOOPPQQRRSSTTUUVVWWXXYYZZ[[\\]]^^__``aabbccddeeffgghhiijjkkllmmnnooppqqrrssttuuvvwwxxyyzz{{||}}~~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+No error
+Operation not permitted
+No such file or directory
+No such process
+Interrupted function call
+Input/output error
+No such device or address
+Arg list too long
+Exec format error
+Bad file descriptor
+No child processes
+Resource temporarily unavailable
+Not enough space
+Permission denied
+Bad address
+Unknown error
+Resource device
+File exists
+Improper link
+No such device
+Not a directory
+Is a directory
+Invalid argument
+Too many open files in system
+Too many open files
+Inappropriate I/O control operation
+Unknown error
+File too large
+No space left on device
+Invalid seek
+Read-only file system
+Too many links
+Broken pipe
+Domain error
+Result too large
+Unknown error
+Resource deadlock avoided
+Unknown error
+Filename too long
+No locks available
+Function not implemented
+Directory not empty
+Illegal byte sequence
+Unknown error
+runtime error
+Assertion failed: %s, file %s, line %d
+kernel32.dll
+LCMapStringW
+LCMapStringA
+kernel32.dll
+GetStringTypeW
+GetStringTypeA
+- floating point not loaded
+- not enough space for arguments
+- not enough space for environment
+abnormal program termination
+- not enough space for thread data
+- unexpected multithread lock error
+- unexpected heap error
+- unable to open console device
+- not enough space for _onexit/atexit table
+- pure virtual function call
+DOMAIN error
+SING error
+TLOSS error
+runtime error 
+kernel32.dll
+CompareStringW
+CompareStringA
+SunMonTueWedThuFriSat
+JanFebMarAprMayJunJulAugSepOctNovDec
+_ValidateRead( %p, %d ): Invalid Pointer!
+_ValidateWrite( %p, %d ): Invalid Pointer!
+_ValidateExecute( %p ): Invalid Function Address!
+GetPrivateProfileStringA
+LoadLibraryA
+KERNEL32.dll
+MessageBoxA
+LoadCursorA
+PeekMessageA
+DispatchMessageA
+TranslateMessage
+GetMessageA
+DialogBoxParamA
+MoveWindow
+GetSystemMetrics
+GetWindowLongA
+ScreenToClient
+GetWindowRect
+GetClientRect
+ShowWindow
+DestroyWindow
+GetCapture
+GetKeyState
+GetCursorPos
+ReleaseDC
+FillRect
+GetSysColor
+ReleaseCapture
+SetCapture
+DefWindowProcA
+SetCursor
+EndPaint
+BeginPaint
+LoadMenuA
+EnableMenuItem
+GetMenuState
+CheckMenuItem
+SetWindowLongA
+CreateWindowExA
+GetSubMenu
+RegisterClassA
+LoadIconA
+EndDialog
+GetDlgItemTextA
+SetDlgItemTextA
+USER32.dll
+DeleteObject
+SelectObject
+MoveToEx
+CreatePen
+GetStockObject
+SetBkMode
+SelectClipRgn
+TextOutA
+CreateRectRgnIndirect
+CreateSolidBrush
+GDI32.dll
+GetOpenFileNameA
+GetSaveFileNameA
+comdlg32.dll
+DragAcceptFiles
+DragQueryFileA
+SHELL32.dll
+WSOCK32.dll
+ExitProcess
+GetLocalTime
+RtlUnwind
+GetModuleHandleA
+GetStartupInfoA
+GetEnvironmentStrings
+GetCommandLineA
+GetVersion
+MultiByteToWideChar
+WideCharToMultiByte
+GetProcAddress
+VirtualFree
+VirtualAlloc
+GetLastError
+CloseHandle
+WriteFile
+ReadFile
+FlushFileBuffers
+SetFilePointer
+GetStdHandle
+GetFileType
+GetFileAttributesA
+CreateFileA
+GetCurrentProcessId
+RaiseException
+UnhandledExceptionFilter
+GetModuleFileNameA
+GetOEMCP
+GetCPInfo
+SetEnvironmentVariableA
+SetStdHandle
+GetTimeZoneInformation
+GetExitCodeProcess
+WaitForSingleObject
+CreateProcessA
+SetEndOfFile
+SetUnhandledExceptionFilter
+IsBadReadPtr
+IsBadWritePtr
+IsBadCodePtr
+GetFocus
+SetDIBitsToDevice
+RealizePalette
+SelectPalette
+CreatePalette
+GetSystemPaletteEntries
+GetDeviceCaps
+SetPaletteEntries
+||||||||||||||||
+x||||||||||||||
+x||||||||||||||
+||||||||x||
+||||||||
+x|||||||||||
+x|||||||||||
+1$1)1.1L1
+4a4f4k4p4
+9>:C:H:M:e:t:
+> >'>,>3>;>H>
+0D0^0l0}0
+1'1.161=1m1z1
+1)20282E2Q2Y2b2g2n2}2
+3"3B3P3\3d3l3q3x3
+4$4,41484@4I4Q4^4f4k4r4z4
+8#939@9E9[9p9
+:*:=:Q:v:
+;@;D;H;L;P;T;X;\;`;d;
+<H<U<Z<i<q<
+<$=1=6=E=M=]=f=
+>8>G>X>|>
+12373<3A3]3q3w3
+6&6,646}6
+6E7J7O7T7t7
+9#9.9P9X9u9
+:8:D:J:O:X:]:s:
+;V;];c;q;z;
+<*<=<B<p<
+<,=1=?=M=
+>G>s>x>}>
+1-1@1W1a1j1t1
+3+30363H3V3n3H4M4R4W4	5
+5I6[6k6}6
+>:???D?I?
+1-292>2p2
+2&3@3D3H3L3P3T3X3\3`3d3h3l3p3t3x3|3
+646=6A6F6U6`6j6y6~6
+7,717B7g7
+8#8+81868D8J8h8{8
+;,;1;8;@;I;O;~;
+<)<:<E<M<R<Y<a<n<
+=!=`=m=r=
+>">+>6>C>K>T>]>f>q>
+070?0G0P0a0h0
+0	141C1H1V1`1
+303A3c3r3
+4(4-444<4E4M4R4Y4t4{4
+475N5S5w5~5
+6"7*7I7P7X7e7
+8$8,858=8B8I8\8`8d8h8l8p8t8x8
+<-<4<:<?<L<
+=*=7=g=m=
+5,54595p5
+6#6(6L6Q6q6v6
+:J:W:o:|:
+;C<H<M<R<
+03080=0S0X0]0s0x0}0
+13181=1V1[1`1r1w1|1
+2$262;2@2R2W2\2n2s2x2
+3 32373<3N3S3X3j3o3t3
+4.43484J4O4T4f4k4p4
+5*5/545F5K5P5b5g5l5~5
+6&6+606B6G6L6^6c6h6z6
+7"7'7,7>7C7H7Z7_7d7v7{7
+8#8(8:8?8D8V8[8`8r8w8|8
+9$969;9@9R9W9\9n9s9x9
+: :2:7:<:N:S:X:j:o:t:
+1$1)1,2P2
+7.7=7B7q7
+8'8,8o8t8y8~8&9+90959R9
+>W>\>a>f>
+? ?%?*?T?a?f?
+1"1'1,1"2'2,212M2^2c2
+2i3n3s3x3
+4P4\4i4v4
+52575I5N5`5e5r5w5
+6*6/6<6q6v6
+868F8K8f8k8
+;<;L;T;Y;
+2G2j2o2t2y2
+2,31363;3v3
+334@4E4]4
+5&5W5\5a5f5
+7&7+787Q7Y7^7k7
+<l<s<D=H=L=P=T=X=
+1 1$1(1,1014181<1@1D1H1L1P1T1X1\1`1d1h1l1p1t1
+182<2@2D2H2L2
+2!3&3,3>3C3H3V3[3`3n3s3x3
+4!4'454:4?4N4S4X4g4l4q4
+4	5%5P5U5
+=V>[>`>e>
+? ?(?-?:?Q?k?p?u?z?
+070<0K0Q0Z0`0
+1	1"1+131S1e1k1|1
+3U4n4s4x4}4e5j5o5t5
+<#<8<I<N<i<
+="=4=9=>=P=U=Z=p=u=z=
+=D>I>\>a>
+4D4H4L4P4T4
+8!8>8N8k8{8
+=(=0=?>l>
+G2N2G3o4
+<e=m=u={=
+0"0=0C0L0R0W0y0
+>C?J?O?U?h?v?
+0.090?0P0h0l0p0t0x0
+1%2,232A2G2U2^2e2
+4*434E4T4Y4_4r4v4~4
+5!5/555>5D5I5Q5W5c5i5q5w5}5
+6(6.636=6B6G6R6V6[6h6m6~6
+7L8Z8b8x8|8
+6%6+6<6E6K6P6X6i6q6x6
+7$72787?7O7V7^7o7x7
+8I8`8h8y8
+9 9&999?9M9]9g9w9}9
+:#:*:0:9:G:O:X:f:n:t:
+;#;+;<;E;S;^;g;x;};
+<'<-<7<G<M<]<m<
+=%=?=Q=W=]=g=x=
+>D>J>V>b>n>x>
+?#?/?=?C?J?P?Z?a?m?w?
+0$0+0?0F0Q0X0j0q0
+4X4\4`4d4h4l4p4t4x4|4
+6K6^6c6|6
+9)9O9V9y9
+>$>8>>>I>O>g>
+1"1(141K1Y1h1
+6"6+646=6F6O6X6\6`6d6h6l6p6t6x6|6
+8(8C8U8j8
+99:W:a:f:
+<8<R<e<u<
+1"141Y1d1
+919Q9a9q9
+; ;*;<;D;h;z;
+<7<B<X<q<
+>%>7>L>]>r>
+565B5K5~5
+<"<+<F<R<[<v<
+=)=.=3=I=O=
+0!0*0E0Q0Z0u0
+1	2$2B2V2\2r293Z3g3
+:+:J:]:|:
+;!;L;g;~;
+1N2l244\4
+:!:W:r:~:
+=7=R=^=u=
+0(040=0W0
+1"1a1i1t1
+9%9.9I9U9^9y9
+<5<A<X<d<m<
+="='=2===B=G=R=]=b=g=r=}=
+?6?B?Y?e?n?
+:";-;2;7;B;M;R;W;b;m;r;w;
+<"<-<2<7<M<S<
+>!>*>E>Q>Z>u>
+151A1J1e1q1z1
+4%414:4U4a4j4
+8*9E9Q9h9t9}9
+<$<=<R<{<
+> ?,?L?g?~?
+405<5\5w5
+8 9,9L9g9~9
+=!=8=D=M=r=}=
+=%>A>\>r>
+050A0J0~0
+1'1,111<1G1L1Q1g1m1
+3$4A4\4r4
+656A6J6e6q6z6
+=%=1=:=U=a=j=
+>*>0>[>a>
+151A1J1e1q1z1
+6 6)6D6P6Y6
+=9=T=`=w=
+>!>&><>B>
+0"0+0F0R0[0v0
+9)929:9@9Q9W9h9n9
+9&:J:k:{:
+?,?0?4?8?I?
+0"0*080?0w0
+1 1A1N1\1
+343;3I3D4X4d4
+525<5N5W5m5
+3:4J4U4]4r4
+656=6R6Z6|6f7
+:8:?:E:M:
+=(=-=3=o=
+1&2I2[2m2
+p0F2Z2g2"3D3[3
+&0H0G:L:_:h:q:z:
+8&9F9N9V9^9o9
+3&4F4h416o6
+7-767L7}7
+<P<U<b<r<
+8@9I9_9h9v9
+:P;T;X;\;`;d;h;l;p;t;x;|;
+:(:4:I:U:
+'0,0*3N3
+7$7<7T7l7
+<!<C<I<O<U<[<m<
+?=?K?Y?g?u?
+2/3D3R3W3]3f3
+4;4D4Q4i4z4
+>#>.>9>E>J>V>[>o>z>
+?K?S?Y?`?f?m?
+0'0.070>0J0Q0Z0a0j0z0
+9!92989C9P9
+4#4*454?4I4
+9%:F:g:s:
+O1d114H4
+0+080d0l0z0
+?447m92=
+H0h437W9
+6p7t7x7|7
+= =$=(=,=0=4=8=
+7 7$7(7,7074787<7@7D7
+D7N7)?3?C?M?
+1*2[62><>
+;9>C><?F?
+?6 7$7(7,7074787h8q:T;X;\;`;d;h;l;p;t;x;|;
+>&>+>\>q>y>
+011;1M1B2Z2i2
+7078708<8
+<&<9<J<g<n<
+8"8+808L8Q8\8a8q8
+879@9K9U9f9
+9=:p:t:x:|:
+;);0;7;A;K;R;Y;c;j;q;{;
+9#92989@9O9f9
+;D;Q;W;i;o;w;
+>0?:?B?R?
+1"1,1P1\1e1m1)222;2E2^2l2s2}2
+2 3(323:3@3{3
+3+4?4H4b4w4}4
+5!565k5q5
+5 6Q6^6q6{6
+:#:-:V:^:h:
+?!?Q?r?}?
+;#;-;R;d;~;
+<&<3<G<U<^<i<y<
+2 232F2O2]2y2
+6b6o6t6y6
+727B7T7u7
+939<9H9Y9b9q9
+;$;C;h;v;
+:&;-;>;P;Y;k;
+>/?;?B?P?V?j?
+2!2-2<2L2i2s2
+3(3=3E3O3W3a3
+4#474=4F4L4U4]4{4
+4E5O5^5e5r5
+676R6`6q6}6
+:0;=;F;V;n;
+:T:]:i:w:
+2!242d2l2x2
+2 2$2(2,2024282P2T2X2\2`2d2p2
+3 3$3(3,3034383<3@3D3H3L3P3T3X3\3h3
+384<4@4D4H4L4P4T4X4\4`4d4h4l4p4t4x4|4
+5(5D5H5L5P5T5X5\5`5d5h5l5p5t5x5|5
+6 6$6(6,6064686<6@6D6H6L6P6T6X6\6`6d6h6l6p6t6x6|6
+7,747@7\7h7
+8$8,848<8D8L8P8T8X8\8h8
+9(9D9L9T9\9d9l9p9t9x9|9
+:(:D:L:T:\:h:
+;(;D;H;L;X;t;
+<,<4<@<\<h<
+=4=@=\=d=l=p=t=x=|=
+>$>,>0>4>8><>H>d>l>t>|>
+?$?,?4?@?\?d?l?t?x?|?
+0 0<0D0L0X0t0|0
+1$1(1,1014181H1d1p1
+242@2\2`2d2h2l2p2
+3,343<3D3L3T3\3d3l3p3t3x3|3
+4 4$404L4T4`4|4
+545@5\5h5
+6 6$606L6T6`6|6
+7$7,7074787<7H7d7l7t7|7
+8$8,848@8\8d8l8t8|8
+9$9,9094989<9H9d9l9t9
+:(:D:H:L:X:t:
+;(;D;H;L;X;t;
+< <$<0<L<X<t<x<|<
+=$=(=,=8=T=`=|=
+> ><>@>D>P>l>x>
+? ?<?D?P?l?t?|?
+0$0(0,00040@0\0d0l0t0|0
+1$1,141<1D1L1T1\1d1l1p1t1x1|1
+2 2$2(2,20242@2\2d2p2
+3 3<3D3L3T3\3d3l3p3t3x3|3
+4 4<4D4P4l4t4|4
+5,545<5@5D5H5L5P5T5`5|5
+6$6,646<6D6H6L6P6T6X6\6h6
+7(7D7L7T7\7d7l7p7t7x7|7
+8 8$8(8,8084888<8@8D8H8L8P8T8X8\8`8d8h8l8p8t8x8|8
+9 9$9(9,9094989<9@9D9H9L9P9T9X9\9`9d9h9l9p9t9x9|9
+: :$:0:L:P:T:X:\:`:d:h:l:p:t:x:|:
+=8>L>\>l>x>
+1 1$1(1,1014181<1@1D1H1L1P1T1X1\1`1d1h1l1p1t1x1|1
+2 2$2(2,20282<2@2D2P2X2`2h2p2t2
+3 3$30343@3D3P3T3`3d3p3t3
+4 4$40444@4D4P4T4`4d4p4t4
+5 5$50545@5D5P5T5
+:P>T>X>\>`>d>
+P:T:`:d:p:t:
+3 3$3(3,3034383<3@3D3H3L3P3T3X3\3`3d3h3l3p3t3x3|3
+4 4$4(4,4044484<4@4D4H4L4P4T4X4\4`4d4h4l4p4t4x4|4
+90;4;@;D;
+=(>@>D>H>
+0 0$0(0X0p0t0x0
+3 =(=0=8=@=H=P=X=`=h=p=x=
+0`>h>l>p>t>x>|>
+;(;,;<;@;D;H;L;P;T;X;\;`;d;h;l;p;t;x;|;
+= =$=8=<=@=D=H=L=P=T=
+2 2$2(2,20242
+3 384<4P4T4X4\4`4d4h4l4p4t4x4|4
+6 6$686<6P6T6X6\6`6d6
+70747H7L7P7T7X7\7p7t7
+8(8,8084888<8@8D8X8\8p8t8x8|8
+9 9@9D9X9\9`9d9h9l9
+:0:4:8:<:@:D:H:L:P:T:X:\:`:d:h:l:p:t:x:
+; ;$;,;0;4;8;@;D;H;L;P;T;X;d;h;l;p;t;x;|;
+< <,<0<4<D<H<X<\<l<p<|<
+= =$=0=4=8=D=H=L=X=\=`=l=p=t=
+> >$>(>,>0>4>8><>@>D>H>L>P>T>X>
+p>t>x>|>
+? ?$?(?,?0?4?8?<?@?D?H?L?P?T?X?\?`?l?p?t?x?
+0 0$0004080D0H0L0X0\0`0l0p0t0
+1$1(14181<1H1L1P1`1d1t1x1
+2$2(2,282<2@2L2P2T2`2d2h2t2x2|2
+7p;t;x;|;
+<P=T=X=\=`=d=
+=p?t?x?|?
+T4\4d4l4t4|4
+44585<5@5D5H5L5P5T5X5\5`5d5h5l5p5
+6$6(6,606D6H6L6P6T6X6\6`6d6h6l6p6t6x6|6
+;$;,;4;<;D;L;T;\;d;
