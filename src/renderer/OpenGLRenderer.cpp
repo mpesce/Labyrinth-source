@@ -194,6 +194,10 @@ OpenGLRenderer::OpenGLRenderer()
     currentDiffuse[0] = currentDiffuse[1] = currentDiffuse[2] = 0.8f;
     currentSpecular[0] = currentSpecular[1] = currentSpecular[2] = 0.0f;
     currentShininess = 0.2f;
+
+    /* Initialize texture */
+    currentTextureId = 0;
+    currentTextureEnabled = false;
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -276,6 +280,7 @@ bool OpenGLRenderer::initialize(int width, int height, const char* title)
     renderAction->drawIndexedFaceSet = cb_drawIndexedFaceSet;
     renderAction->addLight = cb_addLight;
     renderAction->setCamera = cb_setCamera;
+    renderAction->loadTexture = cb_loadTexture;
     renderAction->userData = this;
 
     printf("OpenGL Renderer initialized successfully\n");
@@ -312,6 +317,13 @@ void OpenGLRenderer::shutdown()
         glDeleteBuffers(1, &ebo);
         ebo = 0;
     }
+
+    /* Delete all loaded textures */
+    for (std::map<std::string, unsigned int>::iterator it = textureCache.begin();
+         it != textureCache.end(); ++it) {
+        glDeleteTextures(1, &it->second);
+    }
+    textureCache.clear();
 
     if (window) {
         glfwDestroyWindow(window);
@@ -689,6 +701,7 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
     /* Parse coordIndex array and build triangles */
     std::vector<float> vertices;
     std::vector<float> generatedNormals;
+    std::vector<float> generatedTexCoords;
 
     /* Current polygon being built */
     std::vector<int> polygon;
@@ -781,6 +794,29 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
                                 generatedNormals.push_back(normal[2]);
                             }
                         }
+
+                        /* Add texture coordinates - use provided coords if available, else generate defaults */
+                        if (texCoords != NULL && numTexCoords > 0) {
+                            /* Use provided texture coordinates */
+                            /* Assume one texCoord per vertex, indexed by coordIndex */
+                            if (i0 < numTexCoords && i1 < numTexCoords && i2 < numTexCoords) {
+                                /* TexCoord for vertex 0 (S, T) */
+                                generatedTexCoords.push_back(texCoords[i0 * 2 + 0]);
+                                generatedTexCoords.push_back(texCoords[i0 * 2 + 1]);
+                                /* TexCoord for vertex 1 */
+                                generatedTexCoords.push_back(texCoords[i1 * 2 + 0]);
+                                generatedTexCoords.push_back(texCoords[i1 * 2 + 1]);
+                                /* TexCoord for vertex 2 */
+                                generatedTexCoords.push_back(texCoords[i2 * 2 + 0]);
+                                generatedTexCoords.push_back(texCoords[i2 * 2 + 1]);
+                            }
+                        } else {
+                            /* Generate default texture coordinates (0,0) */
+                            for (int v = 0; v < 3; v++) {
+                                generatedTexCoords.push_back(0.0f);
+                                generatedTexCoords.push_back(0.0f);
+                            }
+                        }
                     }
                 }
             }
@@ -802,7 +838,7 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
         glBindVertexArray(tempVAO);
         glBindBuffer(GL_ARRAY_BUFFER, tempVBO);
 
-        /* Interleave position and normal data */
+        /* Interleave position, normal, and texCoord data */
         std::vector<float> interleavedData;
         for (size_t i = 0; i < vertices.size() / 3; i++) {
             /* Position */
@@ -813,19 +849,27 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
             interleavedData.push_back(generatedNormals[i * 3 + 0]);
             interleavedData.push_back(generatedNormals[i * 3 + 1]);
             interleavedData.push_back(generatedNormals[i * 3 + 2]);
+            /* TexCoord */
+            interleavedData.push_back(generatedTexCoords[i * 2 + 0]);
+            interleavedData.push_back(generatedTexCoords[i * 2 + 1]);
         }
 
         glBufferData(GL_ARRAY_BUFFER, interleavedData.size() * sizeof(float),
                      interleavedData.data(), GL_STATIC_DRAW);
 
         /* Position attribute */
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         glEnableVertexAttribArray(0);
 
         /* Normal attribute */
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
                             (void*)(3 * sizeof(float)));
         glEnableVertexAttribArray(1);
+
+        /* TexCoord attribute */
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float),
+                            (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(2);
 
         /* Draw triangles */
         glDrawArrays(GL_TRIANGLES, 0, vertices.size() / 3);
@@ -894,8 +938,13 @@ void OpenGLRenderer::applyCurrentState()
         glUniform1i(glGetUniformLocation(shaderProgram, uniformName), lights[i].enabled ? 1 : 0);
     }
 
-    /* Disable texture for now */
-    glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 0);
+    /* Set texture */
+    glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), currentTextureEnabled ? 1 : 0);
+    if (currentTextureEnabled && currentTextureId != 0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, currentTextureId);
+        glUniform1i(glGetUniformLocation(shaderProgram, "texSampler"), 0);
+    }
 }
 
 /* Geometry generation implementations */
@@ -1403,4 +1452,71 @@ void OpenGLRenderer::cb_setCamera(int type, float* position, float* orientation,
         position[1] + forward.y,
         position[2] + forward.z
     );
+}
+
+void OpenGLRenderer::cb_loadTexture(const char* filename, int wrapS, int wrapT, void* userData)
+{
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer || !filename) return;
+
+    /* Check if texture is already loaded */
+    std::string key(filename);
+    if (renderer->textureCache.find(key) != renderer->textureCache.end()) {
+        /* Texture already loaded, reuse it */
+        renderer->currentTextureId = renderer->textureCache[key];
+        renderer->currentTextureEnabled = true;
+        return;
+    }
+
+    /* Load new texture */
+    unsigned int textureId = renderer->loadTextureFromFile(filename, wrapS, wrapT);
+    if (textureId != 0) {
+        renderer->textureCache[key] = textureId;
+        renderer->currentTextureId = textureId;
+        renderer->currentTextureEnabled = true;
+    } else {
+        renderer->currentTextureEnabled = false;
+    }
+}
+
+unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS, int wrapT)
+{
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    /* For now, create a simple procedural checkered texture as placeholder */
+    /* TODO: Load actual image file using stb_image or similar library */
+
+    const int width = 64;
+    const int height = 64;
+    unsigned char data[width * height * 3];
+
+    /* Generate checkered pattern */
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int idx = (y * width + x) * 3;
+            bool isWhite = ((x / 8) % 2) == ((y / 8) % 2);
+            unsigned char color = isWhite ? 255 : 128;
+            data[idx + 0] = color;
+            data[idx + 1] = color;
+            data[idx + 2] = color;
+        }
+    }
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    /* Set wrap mode */
+    GLint glWrapS = (wrapS == 0) ? GL_REPEAT : GL_CLAMP_TO_EDGE;  /* 0=REPEAT, 1=CLAMP */
+    GLint glWrapT = (wrapT == 0) ? GL_REPEAT : GL_CLAMP_TO_EDGE;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, glWrapS);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, glWrapT);
+
+    /* Set filtering */
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    printf("Loaded texture (placeholder checkered pattern): %s\n", filename);
+    return textureID;
 }
