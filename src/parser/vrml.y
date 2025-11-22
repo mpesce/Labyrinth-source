@@ -69,6 +69,16 @@ int yylex(void);
 /* Forward declarations */
 QvNode* create_node(const char* type);
 void add_child_to_group(QvNode* parent, QvNode* child);
+
+/* Exported functions for C++ parser interface */
+#ifdef __cplusplus
+extern "C" {
+#endif
+    int yyparse(void);
+    QvNode* vrml_get_root(void);
+#ifdef __cplusplus
+}
+#endif
 %}
 
 %union {
