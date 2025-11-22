@@ -16,9 +16,13 @@
 /* Last error message */
 static char error_buffer[512] = {0};
 
-/* YACC external variables */
-extern FILE* yyin;
-extern int yylineno;
+/* YACC external variables and functions */
+extern "C" {
+    extern FILE* yyin;
+    extern int yylineno;
+    int yyparse(void);
+    QvNode* vrml_get_root(void);
+}
 
 /*
  * Parse VRML from file

@@ -655,3 +655,185 @@ BOOL QvInput::eof() const
 {
     return curpos >= buflen;
 }
+
+/*
+ * QvSFBitMask - Bitmask field implementation
+ */
+BOOL QvSFBitMask::read(QvInput* in, const char* name)
+{
+    /* Read bitmask value (implementation stub) */
+    int intval;
+    if (!in->read(&intval)) {
+        return FALSE;
+    }
+    value = (unsigned long)intval;
+    return TRUE;
+}
+
+/*
+ * QvSFEnum - Enumeration field implementation
+ */
+BOOL QvSFEnum::read(QvInput* in, const char* name)
+{
+    /* Read enum value (implementation stub) */
+    if (!in->read(&value)) {
+        return FALSE;
+    }
+    return TRUE;
+}
+
+/*
+ * QvSFImage - Image field implementation
+ */
+QvSFImage::~QvSFImage()
+{
+    if (data != NULL) {
+        free(data);
+    }
+}
+
+BOOL QvSFImage::read(QvInput* in, const char* name)
+{
+    /* Read image: width height components [pixel data] */
+    if (!in->read(&width) || !in->read(&height) || !in->read(&components)) {
+        return FALSE;
+    }
+
+    /* Skip pixel data for now (stub implementation) */
+    /* Full implementation would read hexadecimal pixel values */
+    return TRUE;
+}
+
+/*
+ * QvMFVec2f - Array of 2D vectors
+ */
+QvMFVec2f::~QvMFVec2f()
+{
+    if (values != NULL) {
+        free(values);
+    }
+}
+
+BOOL QvMFVec2f::read(QvInput* in, const char* name)
+{
+    char c;
+
+    in->skipWhiteSpace();
+    if (!in->read(&c)) {
+        return FALSE;
+    }
+
+    if (c != '[') {
+        return FALSE;
+    }
+
+    num = 0;
+    values = NULL;
+
+    while (TRUE) {
+        in->skipWhiteSpace();
+
+        if (!in->read(&c)) {
+            return FALSE;
+        }
+
+        if (c == ']') {
+            break;
+        }
+
+        /* Read 2 floats */
+        QvVec2f vec;
+        if (!in->read(&vec.x) || !in->read(&vec.y)) {
+            return FALSE;
+        }
+
+        num++;
+        values = (QvVec2f*)realloc(values, num * sizeof(QvVec2f));
+        values[num - 1] = vec;
+
+        in->skipWhiteSpace();
+        if (!in->read(&c)) {
+            return FALSE;
+        }
+
+        if (c == ']') {
+            break;
+        }
+
+        if (c != ',') {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+
+/*
+ * QvMFString - Array of strings
+ */
+QvMFString::~QvMFString()
+{
+    if (values != NULL) {
+        for (int i = 0; i < num; i++) {
+            if (values[i] != NULL) {
+                free(values[i]);
+            }
+        }
+        free(values);
+    }
+}
+
+BOOL QvMFString::read(QvInput* in, const char* name)
+{
+    char c;
+    char str[256];
+
+    in->skipWhiteSpace();
+    if (!in->read(&c)) {
+        return FALSE;
+    }
+
+    if (c != '[') {
+        return FALSE;
+    }
+
+    num = 0;
+    values = NULL;
+
+    while (TRUE) {
+        in->skipWhiteSpace();
+
+        if (!in->read(&c)) {
+            return FALSE;
+        }
+
+        if (c == ']') {
+            break;
+        }
+
+        /* Read string */
+        if (!in->read(str, sizeof(str))) {
+            return FALSE;
+        }
+
+        num++;
+        values = (char**)realloc(values, num * sizeof(char*));
+        values[num - 1] = (char*)malloc(strlen(str) + 1);
+        strcpy(values[num - 1], str);
+
+        in->skipWhiteSpace();
+        if (!in->read(&c)) {
+            return FALSE;
+        }
+
+        if (c == ']') {
+            break;
+        }
+
+        if (c != ',') {
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
