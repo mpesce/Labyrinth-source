@@ -12,7 +12,7 @@ Separator {
     }
 
     Texture2 {
-        filename "examples/textures/checker.ppm"
+        filename "examples/textures/red.ppm"
     }
 
     Coordinate3 {
