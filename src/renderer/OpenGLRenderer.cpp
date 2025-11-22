@@ -723,43 +723,63 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
                             vertices.push_back(coords[i2 * 3 + k]);
                         }
 
-                        /* Calculate face normal using cross product */
-                        float v0[3] = {
-                            coords[i0 * 3 + 0], coords[i0 * 3 + 1], coords[i0 * 3 + 2]
-                        };
-                        float v1[3] = {
-                            coords[i1 * 3 + 0], coords[i1 * 3 + 1], coords[i1 * 3 + 2]
-                        };
-                        float v2[3] = {
-                            coords[i2 * 3 + 0], coords[i2 * 3 + 1], coords[i2 * 3 + 2]
-                        };
+                        /* Add normals - use provided normals if available, else generate */
+                        if (normals != NULL && numNormals > 0) {
+                            /* Use provided vertex normals (smooth shading) */
+                            /* Assume one normal per vertex, indexed by coordIndex */
+                            if (i0 < numNormals && i1 < numNormals && i2 < numNormals) {
+                                /* Normal for vertex 0 */
+                                generatedNormals.push_back(normals[i0 * 3 + 0]);
+                                generatedNormals.push_back(normals[i0 * 3 + 1]);
+                                generatedNormals.push_back(normals[i0 * 3 + 2]);
+                                /* Normal for vertex 1 */
+                                generatedNormals.push_back(normals[i1 * 3 + 0]);
+                                generatedNormals.push_back(normals[i1 * 3 + 1]);
+                                generatedNormals.push_back(normals[i1 * 3 + 2]);
+                                /* Normal for vertex 2 */
+                                generatedNormals.push_back(normals[i2 * 3 + 0]);
+                                generatedNormals.push_back(normals[i2 * 3 + 1]);
+                                generatedNormals.push_back(normals[i2 * 3 + 2]);
+                            }
+                        } else {
+                            /* Generate face normal using cross product (flat shading) */
+                            float v0[3] = {
+                                coords[i0 * 3 + 0], coords[i0 * 3 + 1], coords[i0 * 3 + 2]
+                            };
+                            float v1[3] = {
+                                coords[i1 * 3 + 0], coords[i1 * 3 + 1], coords[i1 * 3 + 2]
+                            };
+                            float v2[3] = {
+                                coords[i2 * 3 + 0], coords[i2 * 3 + 1], coords[i2 * 3 + 2]
+                            };
 
-                        /* Edge vectors */
-                        float e1[3] = { v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2] };
-                        float e2[3] = { v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2] };
+                            /* Edge vectors */
+                            float e1[3] = { v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2] };
+                            float e2[3] = { v2[0] - v0[0], v2[1] - v0[1], v2[2] - v0[2] };
 
-                        /* Cross product */
-                        float normal[3] = {
-                            e1[1] * e2[2] - e1[2] * e2[1],
-                            e1[2] * e2[0] - e1[0] * e2[2],
-                            e1[0] * e2[1] - e1[1] * e2[0]
-                        };
+                            /* Cross product */
+                            float normal[3] = {
+                                e1[1] * e2[2] - e1[2] * e2[1],
+                                e1[2] * e2[0] - e1[0] * e2[2],
+                                e1[0] * e2[1] - e1[1] * e2[0]
+                            };
 
-                        /* Normalize */
-                        float length = sqrtf(normal[0] * normal[0] +
-                                           normal[1] * normal[1] +
-                                           normal[2] * normal[2]);
-                        if (length > 0.0001f) {
-                            normal[0] /= length;
-                            normal[1] /= length;
-                            normal[2] /= length;
-                        }
+                            /* Normalize */
+                            float length = sqrtf(normal[0] * normal[0] +
+                                               normal[1] * normal[1] +
+                                               normal[2] * normal[2]);
+                            if (length > 0.0001f) {
+                                normal[0] /= length;
+                                normal[1] /= length;
+                                normal[2] /= length;
+                            }
 
-                        /* Add same normal for all 3 vertices (flat shading) */
-                        for (int v = 0; v < 3; v++) {
-                            generatedNormals.push_back(normal[0]);
-                            generatedNormals.push_back(normal[1]);
-                            generatedNormals.push_back(normal[2]);
+                            /* Add same normal for all 3 vertices (flat shading) */
+                            for (int v = 0; v < 3; v++) {
+                                generatedNormals.push_back(normal[0]);
+                                generatedNormals.push_back(normal[1]);
+                                generatedNormals.push_back(normal[2]);
+                            }
                         }
                     }
                 }
