@@ -1,0 +1,7 @@
+#VRML V1.0 ascii
+
+# Minimal test - just node structure without field assignments
+
+Separator {
+    Sphere { }
+}

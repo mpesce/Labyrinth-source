@@ -20,7 +20,6 @@
 %}
 
 %option noyywrap
-%option case-insensitive
 %option yylineno
 
 DIGIT       [0-9]
