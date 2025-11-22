@@ -185,6 +185,20 @@ public:
     QvMatrix value;
 };
 
+// QvSFImage - Embedded image data (for Texture2 inline images)
+class QvSFImage : public QvField {
+public:
+    QvSFImage() : width(0), height(0), components(0), data(NULL) {}
+    ~QvSFImage();
+    virtual BOOL read(QvInput* in, const char* name);
+    virtual const char* getTypeId() const { return "SFImage"; }
+
+    int width;
+    int height;
+    int components;  // 1=grayscale, 2=gray+alpha, 3=RGB, 4=RGBA
+    unsigned char* data;
+};
+
 /*
  * Multi-Value Fields (MF*)
  * These can contain multiple values of the same type

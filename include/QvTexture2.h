@@ -62,18 +62,4 @@ protected:
     static QvFieldData* fieldData;
 };
 
-// SFImage is a special field type for embedded images
-class QvSFImage : public QvField {
-public:
-    QvSFImage() : width(0), height(0), components(0), data(NULL) {}
-    ~QvSFImage();
-    virtual BOOL read(QvInput* in, const char* name);
-    virtual const char* getTypeId() const { return "SFImage"; }
-
-    int width;
-    int height;
-    int components;  // 1=grayscale, 2=gray+alpha, 3=RGB, 4=RGBA
-    unsigned char* data;
-};
-
 #endif // _QV_TEXTURE2_H_

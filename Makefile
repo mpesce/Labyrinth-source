@@ -156,13 +156,13 @@ $(PARSER_YACC_C) $(PARSER_YACC_H): $(PARSER_YACC)
 $(PARSER_LEX_C): $(PARSER_LEX) $(PARSER_YACC_H)
 	cd $(PARSER_SRC_DIR) && $(LEX) vrml.l
 
-# Compile parser YACC output
+# Compile parser YACC output (as C++ since it uses QvNode classes)
 $(PARSER_OBJ_DIR)/y.tab.o: $(PARSER_YACC_C) | $(PARSER_OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
 
-# Compile parser LEX output
+# Compile parser LEX output (as C++ since it uses QvNode classes)
 $(PARSER_OBJ_DIR)/lex.yy.o: $(PARSER_LEX_C) | $(PARSER_OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
+	$(CXX) $(CXXFLAGS) -I$(PARSER_SRC_DIR) -Wno-unused-function -c $< -o $@
 
 # Compile parser interface
 $(PARSER_OBJ_DIR)/QvParser.o: $(PARSER_SRCS) $(PARSER_YACC_H) | $(PARSER_OBJ_DIR)
