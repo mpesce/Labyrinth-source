@@ -941,9 +941,12 @@ void OpenGLRenderer::applyCurrentState()
     /* Set texture */
     glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), currentTextureEnabled ? 1 : 0);
     if (currentTextureEnabled && currentTextureId != 0) {
+        printf("DEBUG: applyCurrentState - Binding texture ID=%u to unit 0\n", currentTextureId);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, currentTextureId);
         glUniform1i(glGetUniformLocation(shaderProgram, "texSampler"), 0);
+    } else {
+        printf("DEBUG: applyCurrentState - No texture (enabled=%d, ID=%u)\n", currentTextureEnabled, currentTextureId);
     }
 }
 
@@ -1459,12 +1462,15 @@ void OpenGLRenderer::cb_loadTexture(const char* filename, int wrapS, int wrapT, 
     OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
     if (!renderer || !filename) return;
 
+    printf("DEBUG: cb_loadTexture called: filename='%s', wrapS=%d, wrapT=%d\n", filename, wrapS, wrapT);
+
     /* Check if texture is already loaded */
     std::string key(filename);
     if (renderer->textureCache.find(key) != renderer->textureCache.end()) {
         /* Texture already loaded, reuse it */
         renderer->currentTextureId = renderer->textureCache[key];
         renderer->currentTextureEnabled = true;
+        printf("DEBUG: Texture cached, ID=%u\n", renderer->currentTextureId);
         return;
     }
 
@@ -1474,8 +1480,10 @@ void OpenGLRenderer::cb_loadTexture(const char* filename, int wrapS, int wrapT, 
         renderer->textureCache[key] = textureId;
         renderer->currentTextureId = textureId;
         renderer->currentTextureEnabled = true;
+        printf("DEBUG: Texture loaded successfully, ID=%u, enabled=%d\n", textureId, renderer->currentTextureEnabled);
     } else {
         renderer->currentTextureEnabled = false;
+        printf("DEBUG: Texture loading FAILED\n");
     }
 }
 
