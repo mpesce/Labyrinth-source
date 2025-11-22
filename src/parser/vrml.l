@@ -16,13 +16,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "y.tab.h"
-
-/* Line number tracking */
-int yylineno = 1;
 %}
 
 %option noyywrap
 %option case-insensitive
+%option yylineno
 
 DIGIT       [0-9]
 HEXDIGIT    [0-9a-fA-F]
