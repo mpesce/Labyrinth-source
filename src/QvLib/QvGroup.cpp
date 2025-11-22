@@ -46,38 +46,15 @@ QvFieldData* QvGroup::getClassFieldData()
 
 void QvGroup::addChild(QvNode* child)
 {
-    fprintf(stderr, "DEBUG: QvGroup::addChild start, child=%p\n", child);
-    fflush(stderr);
     if (child == NULL) return;
 
-    fprintf(stderr, "DEBUG: numChildren=%d, maxChildren=%d\n", numChildren, maxChildren);
-    fflush(stderr);
-
     if (numChildren >= maxChildren) {
-        fprintf(stderr, "DEBUG: reallocating children array, children=%p\n", children);
-        fflush(stderr);
         maxChildren = (maxChildren == 0) ? 4 : maxChildren * 2;
-        if (children == NULL) {
-            fprintf(stderr, "DEBUG: using malloc (children was NULL)\n");
-            fflush(stderr);
-            children = (QvNode**)malloc(maxChildren * sizeof(QvNode*));
-        } else {
-            fprintf(stderr, "DEBUG: using realloc\n");
-            fflush(stderr);
-            children = (QvNode**)realloc(children, maxChildren * sizeof(QvNode*));
-        }
-        fprintf(stderr, "DEBUG: allocation done, new maxChildren=%d, children=%p\n", maxChildren, children);
-        fflush(stderr);
+        children = (QvNode**)realloc(children, maxChildren * sizeof(QvNode*));
     }
 
-    fprintf(stderr, "DEBUG: adding child to array\n");
-    fflush(stderr);
     children[numChildren++] = child;
-    fprintf(stderr, "DEBUG: calling child->ref()\n");
-    fflush(stderr);
     child->ref();
-    fprintf(stderr, "DEBUG: QvGroup::addChild end\n");
-    fflush(stderr);
 }
 
 void QvGroup::removeChild(int index)
