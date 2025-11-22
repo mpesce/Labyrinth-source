@@ -158,39 +158,33 @@ int main(int argc, char** argv)
         }
 
         printf("Renderer initialized\n");
-        printf("\n");
-        printf("NOTE: This is a stub implementation.\n");
-        printf("To build with full OpenGL support:\n");
-        printf("  1. Install GLFW3: sudo apt-get install libglfw3-dev\n");
-        printf("  2. Install GLEW: sudo apt-get install libglew-dev\n");
-        printf("  3. Uncomment OpenGL headers in OpenGLRenderer.cpp\n");
-        printf("  4. Build with: make OPENGL=1\n");
-        printf("  5. Run with: ./labyrinth scene.wrl\n");
-        printf("\n");
+        printf("\nControls:\n");
+        printf("  - Left mouse button + drag: Rotate camera\n");
+        printf("  - Mouse wheel: Zoom in/out\n");
+        printf("  - W/A/S/D: Move camera\n");
+        printf("  - ESC: Exit\n");
+        printf("\nStarting 3D render loop...\n\n");
 
-        /* Render loop (stub) */
-        printf("Starting render loop...\n");
-        printf("(In full implementation, this would display the 3D scene)\n");
-        printf("\n");
+        /* Real-time rendering loop */
+        float lastFrame = 0.0f;
+        while (!renderer->shouldClose()) {
+            /* Calculate delta time (simplified - would use glfwGetTime() in real code) */
+            float currentFrame = lastFrame + 0.016f;  /* ~60 FPS */
+            float deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
 
-        /* In a real implementation:
-         *
-         * while (!renderer->shouldClose()) {
-         *     renderer->beginFrame();
-         *     renderer->clear();
-         *     renderer->processInput(deltaTime);
-         *     renderer->renderScene(scene_root);
-         *     renderer->endFrame();
-         *     renderer->pollEvents();
-         * }
-         */
+            /* Process input */
+            renderer->processInput(deltaTime);
 
-        /* For now, just traverse and print */
-        printf("Scene graph traversal:\n");
-        renderer->renderScene(scene_root);
+            /* Render frame */
+            renderer->beginFrame();
+            renderer->clear();
+            renderer->renderScene(scene_root);
+            renderer->endFrame();
 
-        printf("\nPress ENTER to exit...\n");
-        getchar();
+            /* Poll events */
+            renderer->pollEvents();
+        }
     }
 
 cleanup:
