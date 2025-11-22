@@ -403,42 +403,46 @@ QvInput::QvInput()
     buflen = 0;
     curpos = 0;
     lineNum = 1;
-    fileHandle = INVALID_HANDLE_VALUE;
+    fileHandle = NULL;
 }
 
 QvInput::~QvInput()
 {
-    if (fileHandle != INVALID_HANDLE_VALUE) {
-        CloseHandle(fileHandle);
+    if (fileHandle != NULL) {
+        fclose(fileHandle);
     }
 }
 
 BOOL QvInput::openFile(const char* filename)
 {
-    fileHandle = CreateFileA(filename, GENERIC_READ, FILE_SHARE_READ,
-                             NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    /* Open file with standard C library (cross-platform) */
+    fileHandle = fopen(filename, "rb");  /* Binary mode */
 
-    if (fileHandle == INVALID_HANDLE_VALUE) {
+    if (fileHandle == NULL) {
         return FALSE;
     }
 
-    // Get file size
-    DWORD fileSize = GetFileSize(fileHandle, NULL);
+    /* Get file size */
+    fseek(fileHandle, 0, SEEK_END);
+    long fileSize = ftell(fileHandle);
+    fseek(fileHandle, 0, SEEK_SET);
 
-    // Allocate buffer
+    /* Allocate buffer */
     char* tempBuf = (char*)malloc(fileSize + 1);
-
-    // Read file
-    DWORD bytesRead;
-    if (!ReadFile(fileHandle, tempBuf, fileSize, &bytesRead, NULL)) {
-        free(tempBuf);
+    if (tempBuf == NULL) {
+        fclose(fileHandle);
+        fileHandle = NULL;
         return FALSE;
     }
 
+    /* Read file */
+    size_t bytesRead = fread(tempBuf, 1, fileSize, fileHandle);
     tempBuf[bytesRead] = '\0';
 
     setBuffer(tempBuf, bytesRead);
     free(tempBuf);
+
+    /* Note: fileHandle stays open for potential reuse */
 
     return TRUE;
 }

@@ -127,7 +127,7 @@ FTPConnection* FTP_Connect(const char* host, int port)
     /* Resolve hostname */
     hp = gethostbyname(host);
     if (hp == NULL) {
-        closesocket(conn->control);
+        CLOSE_SOCKET(conn->control);
         free(conn->host);
         free(conn);
         return NULL;
@@ -141,7 +141,7 @@ FTPConnection* FTP_Connect(const char* host, int port)
 
     /* Connect */
     if (connect(conn->control, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
-        closesocket(conn->control);
+        CLOSE_SOCKET(conn->control);
         free(conn->host);
         free(conn);
         return NULL;
@@ -151,7 +151,7 @@ FTPConnection* FTP_Connect(const char* host, int port)
     response = read_response(conn->control, &code);
     if (code != FTP_READY) {
         if (response) free(response);
-        closesocket(conn->control);
+        CLOSE_SOCKET(conn->control);
         free(conn->host);
         free(conn);
         return NULL;
@@ -288,7 +288,7 @@ HTSocket FTP_Passive(FTPConnection* conn)
 
     /* Connect to data port */
     if (connect(data_sock, (struct sockaddr*)&addr, sizeof(addr)) == SOCKET_ERROR) {
-        closesocket(data_sock);
+        CLOSE_SOCKET(data_sock);
         return INVALID_SOCKET;
     }
 
@@ -324,13 +324,13 @@ int FTP_Retrieve(FTPConnection* conn, const char* filename,
     if (response) free(response);
 
     if (code != 150 && code != 125) { /* 150 = About to open, 125 = Already open */
-        closesocket(data_sock);
+        CLOSE_SOCKET(data_sock);
         return HT_ERROR;
     }
 
     /* Read data */
     bytes_read = read_data(data_sock, data);
-    closesocket(data_sock);
+    CLOSE_SOCKET(data_sock);
 
     if (bytes_read < 0) {
         return HT_ERROR;
@@ -390,7 +390,7 @@ void FTP_Close(FTPConnection* conn)
 
     /* Close sockets */
     if (conn->control != INVALID_SOCKET) {
-        closesocket(conn->control);
+        CLOSE_SOCKET(conn->control);
     }
 
     /* Free resources */

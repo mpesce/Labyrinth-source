@@ -16,10 +16,13 @@ LEX = flex
 QVLIB_SRC_DIR = src/QvLib
 WWW_SRC_DIR = src/WWW
 PARSER_SRC_DIR = src/parser
+RENDERER_SRC_DIR = src/renderer
 OBJ_DIR = obj
 WWW_OBJ_DIR = obj/WWW
 PARSER_OBJ_DIR = obj/parser
+RENDERER_OBJ_DIR = obj/renderer
 LIB_DIR = lib
+BIN_DIR = bin
 
 # QvLib source files (all QvLib implementations - 37 files)
 QVLIB_SRCS = $(QVLIB_SRC_DIR)/QvNode.cpp \
@@ -74,20 +77,41 @@ PARSER_YACC_H = $(PARSER_SRC_DIR)/y.tab.h
 PARSER_LEX_C = $(PARSER_SRC_DIR)/lex.yy.c
 PARSER_SRCS = $(PARSER_SRC_DIR)/QvParser.cpp
 
+# Renderer files
+RENDERER_SRCS = $(RENDERER_SRC_DIR)/RenderAction.cpp \
+                $(RENDERER_SRC_DIR)/OpenGLRenderer.cpp
+
+# Main application
+MAIN_SRC = src/Main.cpp
+
 # Object files
 QVLIB_OBJS = $(QVLIB_SRCS:$(QVLIB_SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 WWW_OBJS = $(WWW_SRCS:$(WWW_SRC_DIR)/%.c=$(WWW_OBJ_DIR)/%.o)
 PARSER_OBJS = $(PARSER_OBJ_DIR)/y.tab.o \
               $(PARSER_OBJ_DIR)/lex.yy.o \
               $(PARSER_OBJ_DIR)/QvParser.o
+RENDERER_OBJS = $(RENDERER_SRCS:$(RENDERER_SRC_DIR)/%.cpp=$(RENDERER_OBJ_DIR)/%.o)
+MAIN_OBJ = $(OBJ_DIR)/Main.o
 
 # Target libraries
 LIBQV = $(LIB_DIR)/libQvLib.a
 LIBWWW = $(LIB_DIR)/libWWW.a
 LIBPARSER = $(LIB_DIR)/libVRMLParser.a
+LIBRENDERER = $(LIB_DIR)/libRenderer.a
+
+# Executable
+LABYRINTH = $(BIN_DIR)/labyrinth
+
+# OpenGL libraries (optional - set OPENGL=1 to enable)
+ifdef OPENGL
+LDFLAGS += -lglfw -lGL -lGLEW -lm
+CXXFLAGS += -DUSE_OPENGL
+endif
 
 # Default target
-all: $(LIBQV) $(LIBWWW) $(LIBPARSER)
+all: libs $(LABYRINTH)
+
+libs: $(LIBQV) $(LIBWWW) $(LIBPARSER) $(LIBRENDERER)
 
 # Create directories
 $(OBJ_DIR):
@@ -99,8 +123,14 @@ $(WWW_OBJ_DIR):
 $(PARSER_OBJ_DIR):
 	mkdir -p $(PARSER_OBJ_DIR)
 
+$(RENDERER_OBJ_DIR):
+	mkdir -p $(RENDERER_OBJ_DIR)
+
 $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
+
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
 # Compile QvLib source files
 $(OBJ_DIR)/%.o: $(QVLIB_SRC_DIR)/%.cpp | $(OBJ_DIR)
@@ -142,12 +172,36 @@ $(PARSER_OBJ_DIR)/QvParser.o: $(PARSER_SRCS) $(PARSER_YACC_H) | $(PARSER_OBJ_DIR
 $(LIBPARSER): $(PARSER_OBJS) | $(LIB_DIR)
 	$(AR) $(ARFLAGS) $@ $^
 
+# Compile renderer source files
+$(RENDERER_OBJ_DIR)/%.o: $(RENDERER_SRC_DIR)/%.cpp | $(RENDERER_OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Link renderer library
+$(LIBRENDERER): $(RENDERER_OBJS) | $(LIB_DIR)
+	$(AR) $(ARFLAGS) $@ $^
+
+# Compile main application
+$(MAIN_OBJ): $(MAIN_SRC) | $(OBJ_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Link executable
+$(LABYRINTH): $(MAIN_OBJ) $(LIBRENDERER) $(LIBPARSER) $(LIBQV) $(LIBWWW) | $(BIN_DIR)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
 # Clean build artifacts
 clean:
-	rm -rf $(OBJ_DIR) $(LIB_DIR)
+	rm -rf $(OBJ_DIR) $(LIB_DIR) $(BIN_DIR)
 	rm -f $(PARSER_YACC_C) $(PARSER_YACC_H) $(PARSER_LEX_C)
 
 # Rebuild everything
 rebuild: clean all
 
-.PHONY: all clean rebuild
+# Run with default example
+run: $(LABYRINTH)
+	./$(LABYRINTH) examples/simple.wrl
+
+# Install (copies to /usr/local/bin)
+install: $(LABYRINTH)
+	install -m 755 $(LABYRINTH) /usr/local/bin/
+
+.PHONY: all libs clean rebuild run install
