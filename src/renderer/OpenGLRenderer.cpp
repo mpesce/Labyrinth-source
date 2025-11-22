@@ -25,6 +25,7 @@ static const char* vertexShaderSource = R"(
 #version 330 core
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
+layout (location = 2) in vec2 aTexCoord;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -32,48 +33,111 @@ uniform mat4 projection;
 
 out vec3 FragPos;
 out vec3 Normal;
+out vec2 TexCoord;
 
 void main()
 {
     FragPos = vec3(model * vec4(aPos, 1.0));
     Normal = mat3(transpose(inverse(model))) * aNormal;
+    TexCoord = aTexCoord;
     gl_Position = projection * view * vec4(FragPos, 1.0);
 }
 )";
 
-/* Fragment shader source */
+/* Fragment shader source - supports up to 8 lights */
 static const char* fragmentShaderSource = R"(
 #version 330 core
 out vec4 FragColor;
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec2 TexCoord;
 
-uniform vec3 lightPos;
+#define MAX_LIGHTS 8
+
+struct Light {
+    int type;          // 0=directional, 1=point, 2=spot
+    vec3 position;
+    vec3 direction;
+    vec3 color;
+    float intensity;
+    bool enabled;
+};
+
+uniform Light lights[MAX_LIGHTS];
+uniform int numLights;
 uniform vec3 viewPos;
-uniform vec3 lightColor;
-uniform vec3 objectColor;
+uniform vec3 ambientColor;
+uniform vec3 diffuseColor;
+uniform vec3 specularColor;
+uniform float shininess;
+uniform bool useTexture;
+uniform sampler2D texSampler;
+
+vec3 calculateDirectionalLight(Light light, vec3 normal, vec3 viewDir)
+{
+    vec3 lightDir = normalize(-light.direction);
+
+    // Diffuse
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.color * light.intensity;
+
+    // Specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess * 128.0);
+    vec3 specular = spec * light.color * light.intensity * specularColor;
+
+    return diffuse + specular;
+}
+
+vec3 calculatePointLight(Light light, vec3 normal, vec3 viewDir)
+{
+    vec3 lightDir = normalize(light.position - FragPos);
+
+    // Attenuation
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (1.0 + 0.09 * distance + 0.032 * distance * distance);
+
+    // Diffuse
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * light.color * light.intensity;
+
+    // Specular
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess * 128.0);
+    vec3 specular = spec * light.color * light.intensity * specularColor;
+
+    return (diffuse + specular) * attenuation;
+}
 
 void main()
 {
-    // Ambient
-    float ambientStrength = 0.3;
-    vec3 ambient = ambientStrength * lightColor;
-
-    // Diffuse
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(lightPos - FragPos);
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = diff * lightColor;
-
-    // Specular
-    float specularStrength = 0.5;
     vec3 viewDir = normalize(viewPos - FragPos);
-    vec3 reflectDir = reflect(-lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    // Ambient component
+    vec3 result = ambientColor;
+
+    // Add contribution from each light
+    for(int i = 0; i < numLights && i < MAX_LIGHTS; i++) {
+        if(!lights[i].enabled) continue;
+
+        if(lights[i].type == 0) {
+            result += calculateDirectionalLight(lights[i], norm, viewDir);
+        } else if(lights[i].type == 1) {
+            result += calculatePointLight(lights[i], norm, viewDir);
+        }
+        // TODO: Spotlight support (type 2)
+    }
+
+    // Multiply by material diffuse color or texture
+    vec3 materialColor = diffuseColor;
+    if(useTexture) {
+        materialColor = texture(texSampler, TexCoord).rgb;
+    }
+
+    result *= materialColor;
+
     FragColor = vec4(result, 1.0);
 }
 )";
@@ -107,6 +171,29 @@ OpenGLRenderer::OpenGLRenderer()
     currentColor[0] = 0.8f;
     currentColor[1] = 0.2f;
     currentColor[2] = 0.2f;
+
+    /* Initialize lights */
+    numLights = 0;
+    for (int i = 0; i < 8; i++) {
+        lights[i].type = 0;
+        lights[i].position[0] = lights[i].position[1] = lights[i].position[2] = 0.0f;
+        lights[i].direction[0] = 0.0f; lights[i].direction[1] = 0.0f; lights[i].direction[2] = -1.0f;
+        lights[i].color[0] = lights[i].color[1] = lights[i].color[2] = 1.0f;
+        lights[i].intensity = 1.0f;
+        lights[i].enabled = false;
+    }
+
+    /* Initialize camera */
+    vrmlCameraSet = false;
+    vrmlCameraPos = Vector3(0, 0, 5);
+    vrmlCameraTarget = Vector3(0, 0, 0);
+    vrmlCameraFov = 0.785398f;  /* 45 degrees */
+
+    /* Initialize material */
+    currentAmbient[0] = currentAmbient[1] = currentAmbient[2] = 0.2f;
+    currentDiffuse[0] = currentDiffuse[1] = currentDiffuse[2] = 0.8f;
+    currentSpecular[0] = currentSpecular[1] = currentSpecular[2] = 0.0f;
+    currentShininess = 0.2f;
 }
 
 OpenGLRenderer::~OpenGLRenderer()
@@ -187,6 +274,8 @@ bool OpenGLRenderer::initialize(int width, int height, const char* title)
     renderAction->drawCone = cb_drawCone;
     renderAction->drawCylinder = cb_drawCylinder;
     renderAction->drawIndexedFaceSet = cb_drawIndexedFaceSet;
+    renderAction->addLight = cb_addLight;
+    renderAction->setCamera = cb_setCamera;
     renderAction->userData = this;
 
     printf("OpenGL Renderer initialized successfully\n");
@@ -523,12 +612,32 @@ void OpenGLRenderer::cb_setTransform(Matrix4* matrix, void* userData)
 void OpenGLRenderer::cb_setMaterial(RenderState* state, void* userData)
 {
     OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
-    if (!renderer || !state || !state->diffuseColor) return;
+    if (!renderer || !state) return;
 
-    /* Store current material color */
-    renderer->currentColor[0] = state->diffuseColor->r;
-    renderer->currentColor[1] = state->diffuseColor->g;
-    renderer->currentColor[2] = state->diffuseColor->b;
+    /* Store all material properties */
+    if (state->ambientColor) {
+        renderer->currentAmbient[0] = state->ambientColor->r;
+        renderer->currentAmbient[1] = state->ambientColor->g;
+        renderer->currentAmbient[2] = state->ambientColor->b;
+    }
+
+    if (state->diffuseColor) {
+        renderer->currentDiffuse[0] = state->diffuseColor->r;
+        renderer->currentDiffuse[1] = state->diffuseColor->g;
+        renderer->currentDiffuse[2] = state->diffuseColor->b;
+        /* Keep currentColor for compatibility */
+        renderer->currentColor[0] = state->diffuseColor->r;
+        renderer->currentColor[1] = state->diffuseColor->g;
+        renderer->currentColor[2] = state->diffuseColor->b;
+    }
+
+    if (state->specularColor) {
+        renderer->currentSpecular[0] = state->specularColor->r;
+        renderer->currentSpecular[1] = state->specularColor->g;
+        renderer->currentSpecular[2] = state->specularColor->b;
+    }
+
+    renderer->currentShininess = state->shininess;
 }
 
 void OpenGLRenderer::cb_drawSphere(float radius, void* userData)
@@ -565,6 +674,8 @@ void OpenGLRenderer::cb_drawCylinder(float radius, float height, void* userData)
 
 void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
                                            float* coords, int numCoords,
+                                           float* normals, int numNormals,
+                                           float* texCoords, int numTexCoords,
                                            void* userData)
 {
     OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
@@ -577,7 +688,7 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
 
     /* Parse coordIndex array and build triangles */
     std::vector<float> vertices;
-    std::vector<float> normals;
+    std::vector<float> generatedNormals;
 
     /* Current polygon being built */
     std::vector<int> polygon;
@@ -646,9 +757,9 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
 
                         /* Add same normal for all 3 vertices (flat shading) */
                         for (int v = 0; v < 3; v++) {
-                            normals.push_back(normal[0]);
-                            normals.push_back(normal[1]);
-                            normals.push_back(normal[2]);
+                            generatedNormals.push_back(normal[0]);
+                            generatedNormals.push_back(normal[1]);
+                            generatedNormals.push_back(normal[2]);
                         }
                     }
                 }
@@ -679,9 +790,9 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
             interleavedData.push_back(vertices[i * 3 + 1]);
             interleavedData.push_back(vertices[i * 3 + 2]);
             /* Normal */
-            interleavedData.push_back(normals[i * 3 + 0]);
-            interleavedData.push_back(normals[i * 3 + 1]);
-            interleavedData.push_back(normals[i * 3 + 2]);
+            interleavedData.push_back(generatedNormals[i * 3 + 0]);
+            interleavedData.push_back(generatedNormals[i * 3 + 1]);
+            interleavedData.push_back(generatedNormals[i * 3 + 2]);
         }
 
         glBufferData(GL_ARRAY_BUFFER, interleavedData.size() * sizeof(float),
@@ -727,11 +838,44 @@ void OpenGLRenderer::applyCurrentState()
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, currentModelMatrix.m);
     }
 
-    /* Set object color */
-    GLint objectColorLoc = glGetUniformLocation(shaderProgram, "objectColor");
-    if (objectColorLoc != -1) {
-        glUniform3f(objectColorLoc, currentColor[0], currentColor[1], currentColor[2]);
+    /* Set material colors */
+    glUniform3fv(glGetUniformLocation(shaderProgram, "ambientColor"), 1, currentAmbient);
+    glUniform3fv(glGetUniformLocation(shaderProgram, "diffuseColor"), 1, currentDiffuse);
+    glUniform3fv(glGetUniformLocation(shaderProgram, "specularColor"), 1, currentSpecular);
+    glUniform1f(glGetUniformLocation(shaderProgram, "shininess"), currentShininess);
+
+    /* Set camera position for specular calculations */
+    glUniform3f(glGetUniformLocation(shaderProgram, "viewPos"),
+                cameraPos.x, cameraPos.y, cameraPos.z);
+
+    /* Set number of lights */
+    glUniform1i(glGetUniformLocation(shaderProgram, "numLights"), numLights);
+
+    /* Set each light's parameters */
+    for (int i = 0; i < numLights && i < 8; i++) {
+        char uniformName[64];
+
+        sprintf(uniformName, "lights[%d].type", i);
+        glUniform1i(glGetUniformLocation(shaderProgram, uniformName), lights[i].type);
+
+        sprintf(uniformName, "lights[%d].position", i);
+        glUniform3fv(glGetUniformLocation(shaderProgram, uniformName), 1, lights[i].position);
+
+        sprintf(uniformName, "lights[%d].direction", i);
+        glUniform3fv(glGetUniformLocation(shaderProgram, uniformName), 1, lights[i].direction);
+
+        sprintf(uniformName, "lights[%d].color", i);
+        glUniform3fv(glGetUniformLocation(shaderProgram, uniformName), 1, lights[i].color);
+
+        sprintf(uniformName, "lights[%d].intensity", i);
+        glUniform1f(glGetUniformLocation(shaderProgram, uniformName), lights[i].intensity);
+
+        sprintf(uniformName, "lights[%d].enabled", i);
+        glUniform1i(glGetUniformLocation(shaderProgram, uniformName), lights[i].enabled ? 1 : 0);
     }
+
+    /* Disable texture for now */
+    glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), 0);
 }
 
 /* Geometry generation implementations */
@@ -1186,4 +1330,57 @@ unsigned int OpenGLRenderer::linkProgram(unsigned int vertex, unsigned int fragm
     }
 
     return program;
+}
+
+void OpenGLRenderer::cb_addLight(int lightIndex, int type, float* position, float* direction,
+                                 float* color, float intensity, bool on, void* userData)
+{
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer || lightIndex < 0 || lightIndex >= 8) return;
+
+    /* Store light data */
+    renderer->lights[lightIndex].type = type;
+    renderer->lights[lightIndex].position[0] = position[0];
+    renderer->lights[lightIndex].position[1] = position[1];
+    renderer->lights[lightIndex].position[2] = position[2];
+    renderer->lights[lightIndex].direction[0] = direction[0];
+    renderer->lights[lightIndex].direction[1] = direction[1];
+    renderer->lights[lightIndex].direction[2] = direction[2];
+    renderer->lights[lightIndex].color[0] = color[0];
+    renderer->lights[lightIndex].color[1] = color[1];
+    renderer->lights[lightIndex].color[2] = color[2];
+    renderer->lights[lightIndex].intensity = intensity;
+    renderer->lights[lightIndex].enabled = on;
+
+    if (lightIndex >= renderer->numLights) {
+        renderer->numLights = lightIndex + 1;
+    }
+}
+
+void OpenGLRenderer::cb_setCamera(int type, float* position, float* orientation,
+                                   float fov, float aspectRatio, void* userData)
+{
+    OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
+    if (!renderer) return;
+
+    /* Convert axis-angle orientation to look direction */
+    /* For simplicity, just use position and orientation to set camera */
+    renderer->vrmlCameraSet = true;
+    renderer->vrmlCameraPos = Vector3(position[0], position[1], position[2]);
+    renderer->vrmlCameraFov = fov;
+
+    /* Convert axis-angle orientation to target point */
+    /* orientation is [x, y, z, angle] - axis and rotation angle */
+    /* For now, use simple forward direction based on rotation */
+    /* TODO: Proper axis-angle to direction conversion */
+    float angle = orientation[3];
+    Vector3 axis(orientation[0], orientation[1], orientation[2]);
+
+    /* Simple approximation: rotate default forward vector (0, 0, -1) */
+    Vector3 forward(0, 0, -1);
+    renderer->vrmlCameraTarget = Vector3(
+        position[0] + forward.x,
+        position[1] + forward.y,
+        position[2] + forward.z
+    );
 }

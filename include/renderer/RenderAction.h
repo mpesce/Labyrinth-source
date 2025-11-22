@@ -22,6 +22,8 @@ class Color;
 
 /* Forward declarations */
 class QvCoordinate3;
+class QvNormal;
+class QvTextureCoordinate2;
 
 /*
  * Rendering state stack
@@ -53,7 +55,9 @@ public:
     int faceType;          /* UNKNOWN, CONVEX */
 
     /* Geometry property nodes */
-    QvCoordinate3* currentCoordinates;  /* For IndexedFaceSet/IndexedLineSet */
+    QvCoordinate3* currentCoordinates;          /* For IndexedFaceSet/IndexedLineSet */
+    QvNormal* currentNormals;                   /* For smooth shading */
+    QvTextureCoordinate2* currentTexCoords;     /* For texture mapping */
 
     RenderState();
     ~RenderState();
@@ -88,20 +92,26 @@ public:
     void (*drawCylinder)(float radius, float height, void* userData);
     void (*drawIndexedFaceSet)(int* coordIndex, int numIndices,
                                float* coords, int numCoords,
+                               float* normals, int numNormals,
+                               float* texCoords, int numTexCoords,
                                void* userData);
     void (*drawIndexedLineSet)(int* coordIndex, int numIndices,
                                float* coords, int numCoords,
                                void* userData);
-    void (*setLight)(int type, Vector3* direction, Vector3* position,
-                    Color* color, float intensity, void* userData);
-    void (*setCamera)(int type, Vector3* position, Vector3* orientation,
-                     float focalDistance, float heightAngle, void* userData);
+    void (*addLight)(int lightIndex, int type, float* position, float* direction,
+                     float* color, float intensity, bool on, void* userData);
+    void (*setCamera)(int type, float* position, float* orientation,
+                      float fov, float aspectRatio, void* userData);
 
     void* userData;
 
 private:
     std::stack<RenderState*> stateStack;
     RenderState* currentState;
+
+    /* Track lights and cameras during traversal */
+    int lightCount;
+    bool cameraSet;
 
     /* Node-specific traversal methods */
     void traverseNode(QvNode* node);
@@ -110,6 +120,8 @@ private:
     void traverseTransform(QvNode* node);
     void traverseMaterial(QvNode* node);
     void traverseGeometry(QvNode* node);
+    void traverseCamera(QvNode* node);
+    void traverseLight(QvNode* node);
 };
 
 /* Math helper classes */

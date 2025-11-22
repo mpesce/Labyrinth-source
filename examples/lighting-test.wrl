@@ -1,0 +1,96 @@
+#VRML V1.0 ascii
+
+# Test file for camera, lighting, and material features
+
+Separator {
+    # Camera setup
+    PerspectiveCamera {
+        position 0 5 10
+        orientation 1 0 0 -0.3
+        focalDistance 10
+        heightAngle 0.785398
+    }
+
+    # Directional light (like sunlight)
+    DirectionalLight {
+        on TRUE
+        intensity 0.8
+        color 1 1 0.9
+        direction 0 -1 -1
+    }
+
+    # Point light (like a light bulb)
+    PointLight {
+        on TRUE
+        intensity 1.0
+        color 1 0.8 0.6
+        location 5 3 0
+    }
+
+    # Red sphere with specular highlight
+    Separator {
+        Translation { translation -3 0 0 }
+        Material {
+            diffuseColor 1 0 0
+            ambientColor 0.3 0 0
+            specularColor 1 1 1
+            shininess 0.8
+        }
+        Sphere { radius 1 }
+    }
+
+    # Green cube with matte finish
+    Separator {
+        Translation { translation 0 0 0 }
+        Material {
+            diffuseColor 0 1 0
+            ambientColor 0 0.3 0
+            specularColor 0.2 0.2 0.2
+            shininess 0.1
+        }
+        Cube { width 2 height 2 depth 2 }
+    }
+
+    # Blue custom mesh (pyramid) with smooth shading
+    Separator {
+        Translation { translation 3 0 0 }
+        Material {
+            diffuseColor 0.3 0.5 1
+            ambientColor 0 0 0.3
+            specularColor 0.8 0.8 1
+            shininess 0.6
+        }
+
+        Coordinate3 {
+            point [
+                0 2 0,      # Top
+                -1 0 1,     # Base front-left
+                1 0 1,      # Base front-right
+                1 0 -1,     # Base back-right
+                -1 0 -1     # Base back-left
+            ]
+        }
+
+        Normal {
+            vector [
+                0 1 0,      # Top (pointing up)
+                -0.447 0 0.894,   # Front-left edge
+                0.447 0 0.894,    # Front-right edge
+                0.447 0 -0.894,   # Back-right edge
+                -0.447 0 -0.894   # Back-left edge
+            ]
+        }
+
+        IndexedFaceSet {
+            coordIndex [
+                # Base (quad)
+                1, 2, 3, 4, -1,
+                # Triangular sides
+                0, 1, 2, -1,
+                0, 2, 3, -1,
+                0, 3, 4, -1,
+                0, 4, 1, -1
+            ]
+        }
+    }
+}

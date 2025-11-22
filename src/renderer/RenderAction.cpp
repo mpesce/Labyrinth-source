@@ -18,6 +18,13 @@
 #include "../../include/QvCylinder.h"
 #include "../../include/QvIndexedFaceSet.h"
 #include "../../include/QvCoordinate3.h"
+#include "../../include/QvNormal.h"
+#include "../../include/QvTextureCoordinate2.h"
+#include "../../include/QvPerspectiveCamera.h"
+#include "../../include/QvOrthographicCamera.h"
+#include "../../include/QvDirectionalLight.h"
+#include "../../include/QvPointLight.h"
+#include "../../include/QvSpotLight.h"
 #include <cmath>
 #include <cstring>
 
@@ -45,6 +52,8 @@ RenderState::RenderState()
 
     /* Geometry property nodes */
     currentCoordinates = NULL;
+    currentNormals = NULL;
+    currentTexCoords = NULL;
 }
 
 RenderState::~RenderState()
@@ -78,6 +87,8 @@ RenderState* RenderState::copy() const
 
     /* Copy geometry property nodes (just the pointers, nodes are ref-counted) */
     newState->currentCoordinates = currentCoordinates;
+    newState->currentNormals = currentNormals;
+    newState->currentTexCoords = currentTexCoords;
 
     return newState;
 }
@@ -199,6 +210,10 @@ RenderAction::RenderAction()
 {
     currentState = new RenderState();
 
+    /* Initialize light and camera tracking */
+    lightCount = 0;
+    cameraSet = false;
+
     /* Initialize callbacks to NULL */
     beginSeparator = NULL;
     endSeparator = NULL;
@@ -210,7 +225,7 @@ RenderAction::RenderAction()
     drawCylinder = NULL;
     drawIndexedFaceSet = NULL;
     drawIndexedLineSet = NULL;
-    setLight = NULL;
+    addLight = NULL;
     setCamera = NULL;
     userData = NULL;
 }
@@ -279,6 +294,19 @@ void RenderAction::traverseNode(QvNode* node)
     } else if (strcmp(nodeType, "Coordinate3") == 0) {
         /* Store current coordinates for IndexedFaceSet */
         currentState->currentCoordinates = (QvCoordinate3*)node;
+    } else if (strcmp(nodeType, "Normal") == 0) {
+        /* Store current normals for smooth shading */
+        currentState->currentNormals = (QvNormal*)node;
+    } else if (strcmp(nodeType, "TextureCoordinate2") == 0) {
+        /* Store current texture coordinates */
+        currentState->currentTexCoords = (QvTextureCoordinate2*)node;
+    } else if (strcmp(nodeType, "PerspectiveCamera") == 0 ||
+               strcmp(nodeType, "OrthographicCamera") == 0) {
+        traverseCamera(node);
+    } else if (strcmp(nodeType, "DirectionalLight") == 0 ||
+               strcmp(nodeType, "PointLight") == 0 ||
+               strcmp(nodeType, "SpotLight") == 0) {
+        traverseLight(node);
     } else if (strcmp(nodeType, "Sphere") == 0 ||
                strcmp(nodeType, "Cube") == 0 ||
                strcmp(nodeType, "Cone") == 0 ||
@@ -286,7 +314,6 @@ void RenderAction::traverseNode(QvNode* node)
                strcmp(nodeType, "IndexedFaceSet") == 0) {
         traverseGeometry(node);
     }
-    /* TODO: Handle other node types (lights, cameras, etc.) */
 }
 
 void RenderAction::traverseSeparator(QvNode* node)
@@ -481,13 +508,129 @@ void RenderAction::traverseGeometry(QvNode* node)
             /* Get coordinate data from current Coordinate3 node */
             QvCoordinate3* coords = currentState->currentCoordinates;
 
-            /* Pass coordIndex array and actual vertex coordinates to renderer */
+            /* Get optional normals and texture coordinates */
+            float* normals = NULL;
+            int numNormals = 0;
+            if (currentState->currentNormals != NULL) {
+                normals = (float*)currentState->currentNormals->vector.values;
+                numNormals = currentState->currentNormals->vector.num;
+            }
+
+            float* texCoords = NULL;
+            int numTexCoords = 0;
+            if (currentState->currentTexCoords != NULL) {
+                texCoords = (float*)currentState->currentTexCoords->point.values;
+                numTexCoords = currentState->currentTexCoords->point.num;
+            }
+
+            /* Pass coordIndex array and vertex data to renderer */
             /* Note: coordIndex.values is long*, callback expects int* */
             drawIndexedFaceSet((int*)faceSet->coordIndex.values,
                              faceSet->coordIndex.num,
                              (float*)coords->point.values,
                              coords->point.num,
+                             normals,
+                             numNormals,
+                             texCoords,
+                             numTexCoords,
                              userData);
         }
     }
+}
+
+void RenderAction::traverseCamera(QvNode* node)
+{
+    if (!setCamera || cameraSet) return;  /* Only use first camera */
+
+    QvNodeType type = node->getNodeType();
+    float position[3];
+    float orientation[4];  /* axis-angle: x, y, z, angle */
+    float fov = 0.785398f;  /* Default 45 degrees */
+    float aspectRatio = 1.0f;
+
+    if (type == QV_PERSPECTIVE_CAMERA) {
+        QvPerspectiveCamera* camera = (QvPerspectiveCamera*)node;
+        position[0] = camera->position.value.x;
+        position[1] = camera->position.value.y;
+        position[2] = camera->position.value.z;
+        orientation[0] = camera->orientation.value.x;
+        orientation[1] = camera->orientation.value.y;
+        orientation[2] = camera->orientation.value.z;
+        orientation[3] = camera->orientation.value.angle;
+        fov = camera->heightAngle.value;
+
+        setCamera(0, position, orientation, fov, aspectRatio, userData);  /* 0 = perspective */
+        cameraSet = true;
+
+    } else if (type == QV_ORTHOGRAPHIC_CAMERA) {
+        QvOrthographicCamera* camera = (QvOrthographicCamera*)node;
+        position[0] = camera->position.value.x;
+        position[1] = camera->position.value.y;
+        position[2] = camera->position.value.z;
+        orientation[0] = camera->orientation.value.x;
+        orientation[1] = camera->orientation.value.y;
+        orientation[2] = camera->orientation.value.z;
+        orientation[3] = camera->orientation.value.angle;
+        fov = camera->height.value;  /* Orthographic uses height instead of angle */
+
+        setCamera(1, position, orientation, fov, aspectRatio, userData);  /* 1 = orthographic */
+        cameraSet = true;
+    }
+}
+
+void RenderAction::traverseLight(QvNode* node)
+{
+    if (!addLight) return;
+
+    QvNodeType type = node->getNodeType();
+    float position[3] = {0, 0, 0};
+    float direction[3] = {0, 0, -1};
+    float color[3] = {1, 1, 1};
+    float intensity = 1.0f;
+    bool on = true;
+    int lightType = 0;  /* 0=directional, 1=point, 2=spot */
+
+    if (type == QV_DIRECTIONAL_LIGHT) {
+        QvDirectionalLight* light = (QvDirectionalLight*)node;
+        direction[0] = light->direction.value.x;
+        direction[1] = light->direction.value.y;
+        direction[2] = light->direction.value.z;
+        color[0] = light->color.value.x;
+        color[1] = light->color.value.y;
+        color[2] = light->color.value.z;
+        intensity = light->intensity.value;
+        on = light->on.value;
+        lightType = 0;
+
+    } else if (type == QV_POINT_LIGHT) {
+        QvPointLight* light = (QvPointLight*)node;
+        position[0] = light->location.value.x;
+        position[1] = light->location.value.y;
+        position[2] = light->location.value.z;
+        color[0] = light->color.value.x;
+        color[1] = light->color.value.y;
+        color[2] = light->color.value.z;
+        intensity = light->intensity.value;
+        on = light->on.value;
+        lightType = 1;
+
+    } else if (type == QV_SPOT_LIGHT) {
+        QvSpotLight* light = (QvSpotLight*)node;
+        position[0] = light->location.value.x;
+        position[1] = light->location.value.y;
+        position[2] = light->location.value.z;
+        direction[0] = light->direction.value.x;
+        direction[1] = light->direction.value.y;
+        direction[2] = light->direction.value.z;
+        color[0] = light->color.value.x;
+        color[1] = light->color.value.y;
+        color[2] = light->color.value.z;
+        intensity = light->intensity.value;
+        on = light->on.value;
+        lightType = 2;
+    }
+
+    /* Pass light to renderer */
+    addLight(lightCount, lightType, position, direction, color, intensity, on, userData);
+    lightCount++;
 }
