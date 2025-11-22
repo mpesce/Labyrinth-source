@@ -692,8 +692,13 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
 {
     OpenGLRenderer* renderer = (OpenGLRenderer*)userData;
     if (!renderer || !renderer->shaderProgram || !coordIndex || !coords) {
+        printf("DEBUG: cb_drawIndexedFaceSet EARLY RETURN - renderer=%p, shader=%p, coordIndex=%p, coords=%p\n",
+               (void*)renderer, renderer ? (void*)renderer->shaderProgram : NULL, (void*)coordIndex, (void*)coords);
         return;
     }
+
+    printf("DEBUG: cb_drawIndexedFaceSet called - indices=%d, coords=%d, normals=%d, texCoords=%d\n",
+           numIndices, numCoords, numNormals, numTexCoords);
 
     /* Apply current transform and material state */
     renderer->applyCurrentState();
