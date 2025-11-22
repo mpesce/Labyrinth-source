@@ -71,7 +71,7 @@ uniform vec3 ambientColor;
 uniform vec3 diffuseColor;
 uniform vec3 specularColor;
 uniform float shininess;
-uniform bool useTexture;
+uniform int useTexture;
 uniform sampler2D texSampler;
 
 vec3 calculateDirectionalLight(Light light, vec3 normal, vec3 viewDir)
@@ -132,7 +132,7 @@ void main()
 
     // Multiply by material diffuse color or texture
     vec3 materialColor = diffuseColor;
-    if(useTexture) {
+    if(useTexture == 1) {
         materialColor = texture(texSampler, TexCoord).rgb;
     }
 
@@ -806,14 +806,27 @@ void OpenGLRenderer::cb_drawIndexedFaceSet(int* coordIndex, int numIndices,
                             /* Assume one texCoord per vertex, indexed by coordIndex */
                             if (i0 < numTexCoords && i1 < numTexCoords && i2 < numTexCoords) {
                                 /* TexCoord for vertex 0 (S, T) */
-                                generatedTexCoords.push_back(texCoords[i0 * 2 + 0]);
-                                generatedTexCoords.push_back(texCoords[i0 * 2 + 1]);
+                                float u0 = texCoords[i0 * 2 + 0];
+                                float v0 = texCoords[i0 * 2 + 1];
+                                generatedTexCoords.push_back(u0);
+                                generatedTexCoords.push_back(v0);
                                 /* TexCoord for vertex 1 */
-                                generatedTexCoords.push_back(texCoords[i1 * 2 + 0]);
-                                generatedTexCoords.push_back(texCoords[i1 * 2 + 1]);
+                                float u1 = texCoords[i1 * 2 + 0];
+                                float v1 = texCoords[i1 * 2 + 1];
+                                generatedTexCoords.push_back(u1);
+                                generatedTexCoords.push_back(v1);
                                 /* TexCoord for vertex 2 */
-                                generatedTexCoords.push_back(texCoords[i2 * 2 + 0]);
-                                generatedTexCoords.push_back(texCoords[i2 * 2 + 1]);
+                                float u2 = texCoords[i2 * 2 + 0];
+                                float v2 = texCoords[i2 * 2 + 1];
+                                generatedTexCoords.push_back(u2);
+                                generatedTexCoords.push_back(v2);
+
+                                static bool printedOnce = false;
+                                if (!printedOnce) {
+                                    printf("DEBUG: First triangle texCoords: v0=(%.2f,%.2f) v1=(%.2f,%.2f) v2=(%.2f,%.2f)\n",
+                                           u0, v0, u1, v1, u2, v2);
+                                    printedOnce = true;
+                                }
                             }
                         } else {
                             /* Generate default texture coordinates (0,0) */
@@ -945,6 +958,8 @@ void OpenGLRenderer::applyCurrentState()
     }
 
     /* Set texture */
+    printf("DEBUG: applyCurrentState - useTexture=%d, currentTextureEnabled=%d, currentTextureId=%u\n",
+           currentTextureEnabled ? 1 : 0, currentTextureEnabled, currentTextureId);
     glUniform1i(glGetUniformLocation(shaderProgram, "useTexture"), currentTextureEnabled ? 1 : 0);
     if (currentTextureEnabled && currentTextureId != 0) {
         printf("DEBUG: applyCurrentState - Binding texture ID=%u to unit 0\n", currentTextureId);
@@ -1503,15 +1518,33 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
     FILE* file = fopen(filename, "rb");
     if (file) {
         printf("DEBUG: File opened successfully\n");
-        char magic[3];
-        int width, height, maxval;
+        char magic[3] = {0};
+        int width = 0, height = 0, maxval = 0;
 
-        /* Read PPM header */
-        int scanResult = fscanf(file, "%2s\n%d %d\n%d\n", magic, &width, &height, &maxval);
-        printf("DEBUG: PPM header scan result=%d, magic='%c%c', w=%d, h=%d, maxval=%d\n",
-               scanResult, magic[0], magic[1], width, height, maxval);
+        /* Read PPM header - use line-by-line parsing for robustness */
+        char line[256];
 
-        if (scanResult == 4 && magic[0] == 'P' && magic[1] == '6' && maxval == 255) {
+        /* Line 1: Magic number */
+        if (fgets(line, sizeof(line), file)) {
+            sscanf(line, "%2s", magic);
+        }
+
+        /* Line 2: Width and height */
+        if (fgets(line, sizeof(line), file)) {
+            sscanf(line, "%d %d", &width, &height);
+        }
+
+        /* Line 3: Max value */
+        if (fgets(line, sizeof(line), file)) {
+            sscanf(line, "%d", &maxval);
+        }
+
+        printf("DEBUG: PPM header: magic='%c%c', w=%d, h=%d, maxval=%d\n",
+               magic[0], magic[1], width, height, maxval);
+        long pos = ftell(file);
+        printf("DEBUG: File position after header: %ld\n", pos);
+
+        if (magic[0] == 'P' && magic[1] == '6' && width > 0 && height > 0 && maxval == 255) {
             printf("DEBUG: Valid PPM header detected\n");
 
             /* Read RGB data */
@@ -1523,6 +1556,9 @@ unsigned int OpenGLRenderer::loadTextureFromFile(const char* filename, int wrapS
 
             if (data && bytesRead == (size_t)size) {
                 printf("DEBUG: Successfully read image data, creating OpenGL texture\n");
+                printf("DEBUG: First 12 bytes of texture data: %02x %02x %02x  %02x %02x %02x  %02x %02x %02x  %02x %02x %02x\n",
+                       data[0], data[1], data[2], data[3], data[4], data[5],
+                       data[6], data[7], data[8], data[9], data[10], data[11]);
                 glBindTexture(GL_TEXTURE_2D, textureID);
                 glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 
