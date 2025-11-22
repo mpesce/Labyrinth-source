@@ -17,7 +17,7 @@ Separator {
         }
 
         Texture2 {
-            filename "test-texture.gif"
+            filename "examples/textures/gradient.ppm"
         }
 
         Coordinate3 {
