@@ -13,6 +13,7 @@
 #define _QV_SEPARATOR_H_
 
 #include "QvNode.h"
+#include "QvGroup.h"
 #include "QvFields.h"
 
 /*
@@ -24,7 +25,7 @@
  *     <children>
  *   }
  */
-class QvSeparator : public QvNode {
+class QvSeparator : public QvGroup {
 public:
     QvSeparator();
     virtual ~QvSeparator();
@@ -40,20 +41,10 @@ public:
     virtual QvFieldData* getFieldData();
     static QvFieldData* getClassFieldData();
 
-    // Children management
-    void addChild(QvNode* child);
-    void removeChild(int index);
-    QvNode* getChild(int index);
-    int getNumChildren();
-
     // Scene graph traversal
     virtual void traverse(void* action);
 
 protected:
-    QvNode** children;
-    int numChildren;
-    int maxChildren;
-
     static QvFieldData* fieldData;
 };
 

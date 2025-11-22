@@ -118,6 +118,24 @@ static void* name_dict = NULL;
 /* Current node being parsed (for field assignment) */
 static QvNode* current_node = NULL;
 
+/* Stack for nested current_node tracking */
+#define MAX_NODE_DEPTH 100
+static QvNode* node_stack[MAX_NODE_DEPTH];
+static int node_stack_top = -1;
+
+static void push_current_node(QvNode* node) {
+    if (node_stack_top < MAX_NODE_DEPTH - 1) {
+        node_stack[++node_stack_top] = node;
+    }
+}
+
+static QvNode* pop_current_node() {
+    if (node_stack_top >= 0) {
+        return node_stack[node_stack_top--];
+    }
+    return NULL;
+}
+
 /* Error messages from strings analysis */
 void yyerror(const char* s);
 int yylex(void);
@@ -142,7 +160,7 @@ extern "C" {
 }
 #endif
 
-#line 146 "y.tab.c"
+#line 164 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -291,7 +309,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 90 "vrml.y"
+#line 108 "vrml.y"
 
     int             intval;
     float           floatval;
@@ -307,7 +325,7 @@ union YYSTYPE
         float x, y, z, angle;
     } rot;
 
-#line 311 "y.tab.c"
+#line 329 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -784,14 +802,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   148,   148,   156,   159,   174,   178,   182,   189,   201,
-     219,   218,   231,   232,   233,   234,   235,   236,   237,   238,
-     239,   240,   241,   242,   243,   244,   245,   246,   247,   248,
-     249,   250,   251,   252,   253,   254,   255,   256,   257,   258,
-     259,   260,   261,   262,   263,   264,   265,   268,   270,   271,
-     275,   284,   290,   295,   300,   305,   313,   314,   318,   326,
-     335,   345,   348,   350,   351,   352,   356,   357,   358,   359,
-     360
+       0,   166,   166,   174,   177,   192,   196,   200,   207,   219,
+     237,   236,   252,   253,   254,   255,   256,   257,   258,   259,
+     260,   261,   262,   263,   264,   265,   266,   267,   268,   269,
+     270,   271,   272,   273,   274,   275,   276,   277,   278,   279,
+     280,   281,   282,   283,   284,   285,   286,   291,   292,   294,
+     306,   315,   321,   326,   331,   336,   344,   345,   349,   357,
+     366,   376,   379,   381,   382,   383,   387,   388,   389,   390,
+     391
 };
 #endif
 
@@ -1420,23 +1438,23 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* vrmlFile: HEADER vrmlScene  */
-#line 149 "vrml.y"
+#line 167 "vrml.y"
     {
         vrml_root = (yyvsp[0].node);
     }
-#line 1428 "y.tab.c"
+#line 1446 "y.tab.c"
     break;
 
   case 3: /* vrmlScene: %empty  */
-#line 156 "vrml.y"
+#line 174 "vrml.y"
     {
         (yyval.node) = NULL;
     }
-#line 1436 "y.tab.c"
+#line 1454 "y.tab.c"
     break;
 
   case 4: /* vrmlScene: vrmlScene node  */
-#line 160 "vrml.y"
+#line 178 "vrml.y"
     {
         if ((yyvsp[-1].node) == NULL) {
             /* Create implicit root Separator */
@@ -1448,35 +1466,35 @@ yyreduce:
             add_child_to_group((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1452 "y.tab.c"
+#line 1470 "y.tab.c"
     break;
 
   case 5: /* node: nodeGuts  */
-#line 175 "vrml.y"
+#line 193 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1460 "y.tab.c"
+#line 1478 "y.tab.c"
     break;
 
   case 6: /* node: definedNode  */
-#line 179 "vrml.y"
+#line 197 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1468 "y.tab.c"
+#line 1486 "y.tab.c"
     break;
 
   case 7: /* node: usedNode  */
-#line 183 "vrml.y"
+#line 201 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1476 "y.tab.c"
+#line 1494 "y.tab.c"
     break;
 
   case 8: /* definedNode: DEF IDENTIFIER node  */
-#line 190 "vrml.y"
+#line 208 "vrml.y"
     {
         /* DEF name node - assign name and add to dictionary */
         (yyval.node) = (yyvsp[0].node);
@@ -1485,11 +1503,11 @@ yyreduce:
         }
         free((yyvsp[-1].stringval));
     }
-#line 1489 "y.tab.c"
+#line 1507 "y.tab.c"
     break;
 
   case 9: /* usedNode: USE IDENTIFIER  */
-#line 202 "vrml.y"
+#line 220 "vrml.y"
     {
         /* USE name - look up node in dictionary */
         /* Error: "Premature end of file after USE" */
@@ -1503,239 +1521,267 @@ yyreduce:
         }
         free((yyvsp[0].stringval));
     }
-#line 1507 "y.tab.c"
-    break;
-
-  case 10: /* $@1: %empty  */
-#line 219 "vrml.y"
-    {
-        current_node = create_node((yyvsp[-1].stringval));
-        free((yyvsp[-1].stringval));
-    }
-#line 1516 "y.tab.c"
-    break;
-
-  case 11: /* nodeGuts: nodeName LBRACE $@1 nodeBody RBRACE  */
-#line 224 "vrml.y"
-    {
-        (yyval.node) = current_node;
-        current_node = NULL;
-    }
 #line 1525 "y.tab.c"
     break;
 
-  case 12: /* nodeName: SEPARATOR  */
-#line 231 "vrml.y"
-                        { (yyval.stringval) = strdup("Separator"); }
-#line 1531 "y.tab.c"
-    break;
-
-  case 13: /* nodeName: TRANSFORMSEPARATOR  */
-#line 232 "vrml.y"
-                         { (yyval.stringval) = strdup("TransformSeparator"); }
+  case 10: /* $@1: %empty  */
+#line 237 "vrml.y"
+    {
+        // Save previous current_node on a stack
+        QvNode* newNode = create_node((yyvsp[-1].stringval));
+        free((yyvsp[-1].stringval));
+        push_current_node(current_node);
+        current_node = newNode;
+    }
 #line 1537 "y.tab.c"
     break;
 
+  case 11: /* nodeGuts: nodeName LBRACE $@1 nodeBody RBRACE  */
+#line 245 "vrml.y"
+    {
+        (yyval.node) = current_node;
+        current_node = pop_current_node();
+    }
+#line 1546 "y.tab.c"
+    break;
+
+  case 12: /* nodeName: SEPARATOR  */
+#line 252 "vrml.y"
+                        { (yyval.stringval) = strdup("Separator"); }
+#line 1552 "y.tab.c"
+    break;
+
+  case 13: /* nodeName: TRANSFORMSEPARATOR  */
+#line 253 "vrml.y"
+                         { (yyval.stringval) = strdup("TransformSeparator"); }
+#line 1558 "y.tab.c"
+    break;
+
   case 14: /* nodeName: GROUP  */
-#line 233 "vrml.y"
+#line 254 "vrml.y"
                         { (yyval.stringval) = strdup("Group"); }
-#line 1543 "y.tab.c"
+#line 1564 "y.tab.c"
     break;
 
   case 15: /* nodeName: SWITCH  */
-#line 234 "vrml.y"
+#line 255 "vrml.y"
                         { (yyval.stringval) = strdup("Switch"); }
-#line 1549 "y.tab.c"
+#line 1570 "y.tab.c"
     break;
 
   case 16: /* nodeName: LEVELOFDETAIL  */
-#line 235 "vrml.y"
+#line 256 "vrml.y"
                         { (yyval.stringval) = strdup("LevelOfDetail"); }
-#line 1555 "y.tab.c"
+#line 1576 "y.tab.c"
     break;
 
   case 17: /* nodeName: TRANSFORM  */
-#line 236 "vrml.y"
+#line 257 "vrml.y"
                         { (yyval.stringval) = strdup("Transform"); }
-#line 1561 "y.tab.c"
+#line 1582 "y.tab.c"
     break;
 
   case 18: /* nodeName: ROTATION  */
-#line 237 "vrml.y"
+#line 258 "vrml.y"
                         { (yyval.stringval) = strdup("Rotation"); }
-#line 1567 "y.tab.c"
+#line 1588 "y.tab.c"
     break;
 
   case 19: /* nodeName: TRANSLATION  */
-#line 238 "vrml.y"
+#line 259 "vrml.y"
                         { (yyval.stringval) = strdup("Translation"); }
-#line 1573 "y.tab.c"
+#line 1594 "y.tab.c"
     break;
 
   case 20: /* nodeName: SCALE  */
-#line 239 "vrml.y"
+#line 260 "vrml.y"
                         { (yyval.stringval) = strdup("Scale"); }
-#line 1579 "y.tab.c"
+#line 1600 "y.tab.c"
     break;
 
   case 21: /* nodeName: MATRIXTRANSFORM  */
-#line 240 "vrml.y"
+#line 261 "vrml.y"
                         { (yyval.stringval) = strdup("MatrixTransform"); }
-#line 1585 "y.tab.c"
+#line 1606 "y.tab.c"
     break;
 
   case 22: /* nodeName: MATERIAL  */
-#line 241 "vrml.y"
+#line 262 "vrml.y"
                         { (yyval.stringval) = strdup("Material"); }
-#line 1591 "y.tab.c"
+#line 1612 "y.tab.c"
     break;
 
   case 23: /* nodeName: MATERIALBINDING  */
-#line 242 "vrml.y"
+#line 263 "vrml.y"
                         { (yyval.stringval) = strdup("MaterialBinding"); }
-#line 1597 "y.tab.c"
+#line 1618 "y.tab.c"
     break;
 
   case 24: /* nodeName: NORMALBINDING  */
-#line 243 "vrml.y"
+#line 264 "vrml.y"
                         { (yyval.stringval) = strdup("NormalBinding"); }
-#line 1603 "y.tab.c"
+#line 1624 "y.tab.c"
     break;
 
   case 25: /* nodeName: SHAPEHINTS  */
-#line 244 "vrml.y"
+#line 265 "vrml.y"
                         { (yyval.stringval) = strdup("ShapeHints"); }
-#line 1609 "y.tab.c"
+#line 1630 "y.tab.c"
     break;
 
   case 26: /* nodeName: COORDINATE3  */
-#line 245 "vrml.y"
+#line 266 "vrml.y"
                         { (yyval.stringval) = strdup("Coordinate3"); }
-#line 1615 "y.tab.c"
+#line 1636 "y.tab.c"
     break;
 
   case 27: /* nodeName: NORMAL  */
-#line 246 "vrml.y"
+#line 267 "vrml.y"
                         { (yyval.stringval) = strdup("Normal"); }
-#line 1621 "y.tab.c"
+#line 1642 "y.tab.c"
     break;
 
   case 28: /* nodeName: TEXTURE2  */
-#line 247 "vrml.y"
+#line 268 "vrml.y"
                         { (yyval.stringval) = strdup("Texture2"); }
-#line 1627 "y.tab.c"
+#line 1648 "y.tab.c"
     break;
 
   case 29: /* nodeName: TEXTURE2TRANSFORM  */
-#line 248 "vrml.y"
+#line 269 "vrml.y"
                         { (yyval.stringval) = strdup("Texture2Transform"); }
-#line 1633 "y.tab.c"
+#line 1654 "y.tab.c"
     break;
 
   case 30: /* nodeName: TEXTURECOORDINATE2  */
-#line 249 "vrml.y"
+#line 270 "vrml.y"
                          { (yyval.stringval) = strdup("TextureCoordinate2"); }
-#line 1639 "y.tab.c"
+#line 1660 "y.tab.c"
     break;
 
   case 31: /* nodeName: SPHERE  */
-#line 250 "vrml.y"
+#line 271 "vrml.y"
                         { (yyval.stringval) = strdup("Sphere"); }
-#line 1645 "y.tab.c"
+#line 1666 "y.tab.c"
     break;
 
   case 32: /* nodeName: CUBE  */
-#line 251 "vrml.y"
+#line 272 "vrml.y"
                         { (yyval.stringval) = strdup("Cube"); }
-#line 1651 "y.tab.c"
+#line 1672 "y.tab.c"
     break;
 
   case 33: /* nodeName: CONE  */
-#line 252 "vrml.y"
+#line 273 "vrml.y"
                         { (yyval.stringval) = strdup("Cone"); }
-#line 1657 "y.tab.c"
+#line 1678 "y.tab.c"
     break;
 
   case 34: /* nodeName: CYLINDER  */
-#line 253 "vrml.y"
+#line 274 "vrml.y"
                         { (yyval.stringval) = strdup("Cylinder"); }
-#line 1663 "y.tab.c"
+#line 1684 "y.tab.c"
     break;
 
   case 35: /* nodeName: INDEXEDFACESET  */
-#line 254 "vrml.y"
+#line 275 "vrml.y"
                         { (yyval.stringval) = strdup("IndexedFaceSet"); }
-#line 1669 "y.tab.c"
+#line 1690 "y.tab.c"
     break;
 
   case 36: /* nodeName: INDEXEDLINESET  */
-#line 255 "vrml.y"
+#line 276 "vrml.y"
                         { (yyval.stringval) = strdup("IndexedLineSet"); }
-#line 1675 "y.tab.c"
+#line 1696 "y.tab.c"
     break;
 
   case 37: /* nodeName: POINTSET  */
-#line 256 "vrml.y"
+#line 277 "vrml.y"
                         { (yyval.stringval) = strdup("PointSet"); }
-#line 1681 "y.tab.c"
+#line 1702 "y.tab.c"
     break;
 
   case 38: /* nodeName: DIRECTIONALLIGHT  */
-#line 257 "vrml.y"
+#line 278 "vrml.y"
                         { (yyval.stringval) = strdup("DirectionalLight"); }
-#line 1687 "y.tab.c"
+#line 1708 "y.tab.c"
     break;
 
   case 39: /* nodeName: POINTLIGHT  */
-#line 258 "vrml.y"
+#line 279 "vrml.y"
                         { (yyval.stringval) = strdup("PointLight"); }
-#line 1693 "y.tab.c"
+#line 1714 "y.tab.c"
     break;
 
   case 40: /* nodeName: SPOTLIGHT  */
-#line 259 "vrml.y"
+#line 280 "vrml.y"
                         { (yyval.stringval) = strdup("SpotLight"); }
-#line 1699 "y.tab.c"
+#line 1720 "y.tab.c"
     break;
 
   case 41: /* nodeName: ORTHOGRAPHICCAMERA  */
-#line 260 "vrml.y"
+#line 281 "vrml.y"
                          { (yyval.stringval) = strdup("OrthographicCamera"); }
-#line 1705 "y.tab.c"
+#line 1726 "y.tab.c"
     break;
 
   case 42: /* nodeName: PERSPECTIVECAMERA  */
-#line 261 "vrml.y"
+#line 282 "vrml.y"
                         { (yyval.stringval) = strdup("PerspectiveCamera"); }
-#line 1711 "y.tab.c"
+#line 1732 "y.tab.c"
     break;
 
   case 43: /* nodeName: WWWANCHOR  */
-#line 262 "vrml.y"
+#line 283 "vrml.y"
                         { (yyval.stringval) = strdup("WWWAnchor"); }
-#line 1717 "y.tab.c"
+#line 1738 "y.tab.c"
     break;
 
   case 44: /* nodeName: WWWINLINE  */
-#line 263 "vrml.y"
+#line 284 "vrml.y"
                         { (yyval.stringval) = strdup("WWWInline"); }
-#line 1723 "y.tab.c"
+#line 1744 "y.tab.c"
     break;
 
   case 45: /* nodeName: INFO  */
-#line 264 "vrml.y"
+#line 285 "vrml.y"
                         { (yyval.stringval) = strdup("Info"); }
-#line 1729 "y.tab.c"
+#line 1750 "y.tab.c"
     break;
 
   case 46: /* nodeName: IDENTIFIER  */
-#line 265 "vrml.y"
+#line 286 "vrml.y"
                         { (yyval.stringval) = (yyvsp[0].stringval); /* Unknown node type */ }
-#line 1735 "y.tab.c"
+#line 1756 "y.tab.c"
+    break;
+
+  case 47: /* nodeBody: %empty  */
+#line 291 "vrml.y"
+    {}
+#line 1762 "y.tab.c"
+    break;
+
+  case 48: /* nodeBody: nodeBody fieldDeclaration  */
+#line 293 "vrml.y"
+    {}
+#line 1768 "y.tab.c"
+    break;
+
+  case 49: /* nodeBody: nodeBody node  */
+#line 295 "vrml.y"
+    {
+        // Add child node to current_node (if it's a group)
+        fprintf(stderr, "DEBUG: nodeBody node action - current_node=%p, child=%p\n", current_node, (yyvsp[0].node));
+        fflush(stderr);
+        add_child_to_group(current_node, (yyvsp[0].node));
+        fprintf(stderr, "DEBUG: after add_child_to_group\n");
+        fflush(stderr);
+    }
+#line 1781 "y.tab.c"
     break;
 
   case 50: /* fieldDeclaration: IDENTIFIER number  */
-#line 276 "vrml.y"
+#line 307 "vrml.y"
     {
         // Could be int or float field - try both
         if ((int)(yyvsp[0].floatval) == (yyvsp[0].floatval)) {
@@ -1744,99 +1790,99 @@ yyreduce:
         set_field_float(current_node, (yyvsp[-1].stringval), (yyvsp[0].floatval));
         free((yyvsp[-1].stringval));
     }
-#line 1748 "y.tab.c"
+#line 1794 "y.tab.c"
     break;
 
   case 51: /* fieldDeclaration: IDENTIFIER STRING  */
-#line 285 "vrml.y"
+#line 316 "vrml.y"
     {
         set_field_string(current_node, (yyvsp[-1].stringval), (yyvsp[0].stringval));
         free((yyvsp[-1].stringval));
         free((yyvsp[0].stringval));
     }
-#line 1758 "y.tab.c"
+#line 1804 "y.tab.c"
     break;
 
   case 52: /* fieldDeclaration: IDENTIFIER vec2f  */
-#line 291 "vrml.y"
+#line 322 "vrml.y"
     {
         set_field_vec2f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec2).x, (yyvsp[0].vec2).y);
         free((yyvsp[-1].stringval));
     }
-#line 1767 "y.tab.c"
+#line 1813 "y.tab.c"
     break;
 
   case 53: /* fieldDeclaration: IDENTIFIER vec3f  */
-#line 296 "vrml.y"
+#line 327 "vrml.y"
     {
         set_field_vec3f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec3).x, (yyvsp[0].vec3).y, (yyvsp[0].vec3).z);
         free((yyvsp[-1].stringval));
     }
-#line 1776 "y.tab.c"
+#line 1822 "y.tab.c"
     break;
 
   case 54: /* fieldDeclaration: IDENTIFIER rotation  */
-#line 301 "vrml.y"
+#line 332 "vrml.y"
     {
         set_field_rotation(current_node, (yyvsp[-1].stringval), (yyvsp[0].rot).x, (yyvsp[0].rot).y, (yyvsp[0].rot).z, (yyvsp[0].rot).angle);
         free((yyvsp[-1].stringval));
     }
-#line 1785 "y.tab.c"
+#line 1831 "y.tab.c"
     break;
 
   case 55: /* fieldDeclaration: IDENTIFIER fieldArray  */
-#line 306 "vrml.y"
+#line 337 "vrml.y"
     {
         /* Array field assignments handled separately */
         free((yyvsp[-1].stringval));
     }
-#line 1794 "y.tab.c"
+#line 1840 "y.tab.c"
     break;
 
   case 56: /* number: INTEGER  */
-#line 313 "vrml.y"
+#line 344 "vrml.y"
             { (yyval.floatval) = (float)(yyvsp[0].intval); }
-#line 1800 "y.tab.c"
+#line 1846 "y.tab.c"
     break;
 
   case 57: /* number: FLOAT  */
-#line 314 "vrml.y"
+#line 345 "vrml.y"
             { (yyval.floatval) = (yyvsp[0].floatval); }
-#line 1806 "y.tab.c"
+#line 1852 "y.tab.c"
     break;
 
   case 58: /* vec2f: number number  */
-#line 319 "vrml.y"
+#line 350 "vrml.y"
     {
         (yyval.vec2).x = (yyvsp[-1].floatval);
         (yyval.vec2).y = (yyvsp[0].floatval);
     }
-#line 1815 "y.tab.c"
+#line 1861 "y.tab.c"
     break;
 
   case 59: /* vec3f: number number number  */
-#line 327 "vrml.y"
+#line 358 "vrml.y"
     {
         (yyval.vec3).x = (yyvsp[-2].floatval);
         (yyval.vec3).y = (yyvsp[-1].floatval);
         (yyval.vec3).z = (yyvsp[0].floatval);
     }
-#line 1825 "y.tab.c"
+#line 1871 "y.tab.c"
     break;
 
   case 60: /* rotation: number number number number  */
-#line 336 "vrml.y"
+#line 367 "vrml.y"
     {
         (yyval.rot).x = (yyvsp[-3].floatval);
         (yyval.rot).y = (yyvsp[-2].floatval);
         (yyval.rot).z = (yyvsp[-1].floatval);
         (yyval.rot).angle = (yyvsp[0].floatval);
     }
-#line 1836 "y.tab.c"
+#line 1882 "y.tab.c"
     break;
 
 
-#line 1840 "y.tab.c"
+#line 1886 "y.tab.c"
 
       default: break;
     }
@@ -2029,7 +2075,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 363 "vrml.y"
+#line 394 "vrml.y"
 
 
 /*
@@ -2094,15 +2140,39 @@ QvNode* create_node(const char* type)
  */
 void add_child_to_group(QvNode* parent, QvNode* child)
 {
+    fprintf(stderr, "DEBUG: add_child_to_group start\n");
+    fflush(stderr);
+
     if (parent == NULL || child == NULL) {
+        fprintf(stderr, "DEBUG: parent or child is NULL\n");
+        fflush(stderr);
         return;
     }
 
-    /* Use dynamic_cast or check node type */
-    QvGroup* group = (QvGroup*)parent;
-    if (group != NULL) {
+    fprintf(stderr, "DEBUG: getting node type\n");
+    fflush(stderr);
+
+    /* Check if parent is actually a group node type */
+    QvNodeType type = parent->getNodeType();
+    fprintf(stderr, "DEBUG: parent type = %d\n", type);
+    fflush(stderr);
+
+    if (type == QV_SEPARATOR || type == QV_GROUP || type == QV_TRANSFORM_SEPARATOR ||
+        type == QV_SWITCH || type == QV_LEVEL_OF_DETAIL) {
+        fprintf(stderr, "DEBUG: casting to group\n");
+        fflush(stderr);
+        QvGroup* group = (QvGroup*)parent;
+        fprintf(stderr, "DEBUG: calling addChild, child name: %s\n", child->getNodeName());
+        fflush(stderr);
         group->addChild(child);
+        fprintf(stderr, "DEBUG: addChild returned\n");
+        fflush(stderr);
+    } else {
+        fprintf(stderr, "DEBUG: Cannot add child to non-group node %s\n", parent->getNodeName());
+        fflush(stderr);
     }
+    fprintf(stderr, "DEBUG: add_child_to_group end\n");
+    fflush(stderr);
 }
 
 /*

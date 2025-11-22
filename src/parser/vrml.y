@@ -62,6 +62,24 @@ static void* name_dict = NULL;
 /* Current node being parsed (for field assignment) */
 static QvNode* current_node = NULL;
 
+/* Stack for nested current_node tracking */
+#define MAX_NODE_DEPTH 100
+static QvNode* node_stack[MAX_NODE_DEPTH];
+static int node_stack_top = -1;
+
+static void push_current_node(QvNode* node) {
+    if (node_stack_top < MAX_NODE_DEPTH - 1) {
+        node_stack[++node_stack_top] = node;
+    }
+}
+
+static QvNode* pop_current_node() {
+    if (node_stack_top >= 0) {
+        return node_stack[node_stack_top--];
+    }
+    return NULL;
+}
+
 /* Error messages from strings analysis */
 void yyerror(const char* s);
 int yylex(void);
@@ -217,13 +235,16 @@ usedNode:
 nodeGuts:
     nodeName LBRACE
     {
-        current_node = create_node($1);
+        // Save previous current_node on a stack
+        QvNode* newNode = create_node($1);
         free($1);
+        push_current_node(current_node);
+        current_node = newNode;
     }
     nodeBody RBRACE
     {
         $$ = current_node;
-        current_node = NULL;
+        current_node = pop_current_node();
     }
     ;
 
@@ -267,8 +288,18 @@ nodeName:
 
 nodeBody:
     /* empty */
+    {}
     | nodeBody fieldDeclaration
+    {}
     | nodeBody node
+    {
+        // Add child node to current_node (if it's a group)
+        fprintf(stderr, "DEBUG: nodeBody node action - current_node=%p, child=%p\n", current_node, $2);
+        fflush(stderr);
+        add_child_to_group(current_node, $2);
+        fprintf(stderr, "DEBUG: after add_child_to_group\n");
+        fflush(stderr);
+    }
     ;
 
 fieldDeclaration:
@@ -424,15 +455,39 @@ QvNode* create_node(const char* type)
  */
 void add_child_to_group(QvNode* parent, QvNode* child)
 {
+    fprintf(stderr, "DEBUG: add_child_to_group start\n");
+    fflush(stderr);
+
     if (parent == NULL || child == NULL) {
+        fprintf(stderr, "DEBUG: parent or child is NULL\n");
+        fflush(stderr);
         return;
     }
 
-    /* Use dynamic_cast or check node type */
-    QvGroup* group = (QvGroup*)parent;
-    if (group != NULL) {
+    fprintf(stderr, "DEBUG: getting node type\n");
+    fflush(stderr);
+
+    /* Check if parent is actually a group node type */
+    QvNodeType type = parent->getNodeType();
+    fprintf(stderr, "DEBUG: parent type = %d\n", type);
+    fflush(stderr);
+
+    if (type == QV_SEPARATOR || type == QV_GROUP || type == QV_TRANSFORM_SEPARATOR ||
+        type == QV_SWITCH || type == QV_LEVEL_OF_DETAIL) {
+        fprintf(stderr, "DEBUG: casting to group\n");
+        fflush(stderr);
+        QvGroup* group = (QvGroup*)parent;
+        fprintf(stderr, "DEBUG: calling addChild, child name: %s\n", child->getNodeName());
+        fflush(stderr);
         group->addChild(child);
+        fprintf(stderr, "DEBUG: addChild returned\n");
+        fflush(stderr);
+    } else {
+        fprintf(stderr, "DEBUG: Cannot add child to non-group node %s\n", parent->getNodeName());
+        fflush(stderr);
     }
+    fprintf(stderr, "DEBUG: add_child_to_group end\n");
+    fflush(stderr);
 }
 
 /*
