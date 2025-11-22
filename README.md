@@ -120,9 +120,9 @@ Labyrinth represents a pivotal moment in web history:
 Historical VRML content referenced in the executable:
 - `labyrnth.wrl` - Default startup world
 - `home.wrl` - Home world
-- http://www.eit.com/~mark/ushm/ushm.wrl - Universal Simulation Hypermedia Machine
+- http://www.eit.com/~mark/ushm/ushm.wrl - US Holocaust Museum
 - http://www.eit.com/~mark/soma/soma.wrl - SOMA world
-- http://www.iuma.com/vrml/ - IUMA VRML
+- http://www.iuma.com/vrml/ - IUMA (Internet Underground Music Archive)
 
 ## Build Status
 

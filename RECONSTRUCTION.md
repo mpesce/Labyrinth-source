@@ -200,9 +200,9 @@ Embedded references to historical VRML content:
 - `labyrnth.wrl` - Default startup world
 - `home.wrl` - Home world
 - http://www.butterfly.net/lab/ushm.wrl
-- http://www.eit.com/~mark/ushm/ushm.wrl - USHM (Universal Simulation Hypermedia Machine)
+- http://www.eit.com/~mark/ushm/ushm.wrl - US Holocaust Museum (USHM)
 - http://www.eit.com/~mark/soma/soma.wrl - SOMA
-- http://www.iuma.com/vrml/ - Internet Underground Music Archive VRML
+- http://www.iuma.com/vrml/ - Internet Underground Music Archive (IUMA)
 
 ## References
 
