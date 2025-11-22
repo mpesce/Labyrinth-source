@@ -159,14 +159,23 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 81 "vrml.y"
+#line 90 "vrml.y"
 
     int             intval;
     float           floatval;
     char*           stringval;
     QvNode*         node;
+    struct {
+        float x, y;
+    } vec2;
+    struct {
+        float x, y, z;
+    } vec3;
+    struct {
+        float x, y, z, angle;
+    } rot;
 
-#line 170 "y.tab.h"
+#line 179 "y.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

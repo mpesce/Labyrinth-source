@@ -115,6 +115,9 @@ static QvNode* vrml_root = NULL;
 /* Name dictionary for DEF/USE */
 static void* name_dict = NULL;
 
+/* Current node being parsed (for field assignment) */
+static QvNode* current_node = NULL;
+
 /* Error messages from strings analysis */
 void yyerror(const char* s);
 int yylex(void);
@@ -122,6 +125,12 @@ int yylex(void);
 /* Forward declarations */
 QvNode* create_node(const char* type);
 void add_child_to_group(QvNode* parent, QvNode* child);
+void set_field_float(QvNode* node, const char* name, float value);
+void set_field_int(QvNode* node, const char* name, int value);
+void set_field_string(QvNode* node, const char* name, const char* value);
+void set_field_vec2f(QvNode* node, const char* name, float x, float y);
+void set_field_vec3f(QvNode* node, const char* name, float x, float y, float z);
+void set_field_rotation(QvNode* node, const char* name, float x, float y, float z, float angle);
 
 /* Exported functions for C++ parser interface */
 #ifdef __cplusplus
@@ -133,7 +142,7 @@ extern "C" {
 }
 #endif
 
-#line 137 "y.tab.c"
+#line 146 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -282,14 +291,23 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 81 "vrml.y"
+#line 90 "vrml.y"
 
     int             intval;
     float           floatval;
     char*           stringval;
     QvNode*         node;
+    struct {
+        float x, y;
+    } vec2;
+    struct {
+        float x, y, z;
+    } vec3;
+    struct {
+        float x, y, z, angle;
+    } rot;
 
-#line 293 "y.tab.c"
+#line 311 "y.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -365,15 +383,17 @@ enum yysymbol_kind_t
   YYSYMBOL_definedNode = 53,               /* definedNode  */
   YYSYMBOL_usedNode = 54,                  /* usedNode  */
   YYSYMBOL_nodeGuts = 55,                  /* nodeGuts  */
-  YYSYMBOL_nodeName = 56,                  /* nodeName  */
-  YYSYMBOL_nodeBody = 57,                  /* nodeBody  */
-  YYSYMBOL_fieldDeclaration = 58,          /* fieldDeclaration  */
-  YYSYMBOL_fieldValue = 59,                /* fieldValue  */
-  YYSYMBOL_vec2f = 60,                     /* vec2f  */
-  YYSYMBOL_vec3f = 61,                     /* vec3f  */
-  YYSYMBOL_rotation = 62,                  /* rotation  */
-  YYSYMBOL_fieldArray = 63,                /* fieldArray  */
-  YYSYMBOL_fieldValueList = 64             /* fieldValueList  */
+  YYSYMBOL_56_1 = 56,                      /* $@1  */
+  YYSYMBOL_nodeName = 57,                  /* nodeName  */
+  YYSYMBOL_nodeBody = 58,                  /* nodeBody  */
+  YYSYMBOL_fieldDeclaration = 59,          /* fieldDeclaration  */
+  YYSYMBOL_number = 60,                    /* number  */
+  YYSYMBOL_vec2f = 61,                     /* vec2f  */
+  YYSYMBOL_vec3f = 62,                     /* vec3f  */
+  YYSYMBOL_rotation = 63,                  /* rotation  */
+  YYSYMBOL_fieldArray = 64,                /* fieldArray  */
+  YYSYMBOL_fieldValueList = 65,            /* fieldValueList  */
+  YYSYMBOL_arrayElement = 66               /* arrayElement  */
 };
 typedef enum yysymbol_kind_t yysymbol_kind_t;
 
@@ -701,16 +721,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  4
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   124
+#define YYLAST   123
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  49
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  16
+#define YYNNTS  18
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  64
+#define YYNRULES  70
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  74
+#define YYNSTATES  80
 
 /* YYMAXUTOK -- Last valid token kind.  */
 #define YYMAXUTOK   303
@@ -764,13 +784,14 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int16 yyrline[] =
 {
-       0,   126,   126,   134,   137,   152,   156,   160,   167,   179,
-     196,   204,   205,   206,   207,   208,   209,   210,   211,   212,
-     213,   214,   215,   216,   217,   218,   219,   220,   221,   222,
-     223,   224,   225,   226,   227,   228,   229,   230,   231,   232,
-     233,   234,   235,   236,   237,   238,   241,   243,   244,   248,
-     257,   258,   259,   260,   261,   262,   263,   267,   271,   275,
-     279,   282,   284,   285,   286
+       0,   148,   148,   156,   159,   174,   178,   182,   189,   201,
+     219,   218,   231,   232,   233,   234,   235,   236,   237,   238,
+     239,   240,   241,   242,   243,   244,   245,   246,   247,   248,
+     249,   250,   251,   252,   253,   254,   255,   256,   257,   258,
+     259,   260,   261,   262,   263,   264,   265,   268,   270,   271,
+     275,   284,   290,   295,   300,   305,   313,   314,   318,   326,
+     335,   345,   348,   350,   351,   352,   356,   357,   358,   359,
+     360
 };
 #endif
 
@@ -797,8 +818,8 @@ static const char *const yytname[] =
   "ORTHOGRAPHICCAMERA", "PERSPECTIVECAMERA", "WWWANCHOR", "WWWINLINE",
   "INFO", "IDENTIFIER", "STRING", "INTEGER", "FLOAT", "$accept",
   "vrmlFile", "vrmlScene", "node", "definedNode", "usedNode", "nodeGuts",
-  "nodeName", "nodeBody", "fieldDeclaration", "fieldValue", "vec2f",
-  "vec3f", "rotation", "fieldArray", "fieldValueList", YY_NULLPTR
+  "$@1", "nodeName", "nodeBody", "fieldDeclaration", "number", "vec2f",
+  "vec3f", "rotation", "fieldArray", "fieldValueList", "arrayElement", YY_NULLPTR
 };
 
 static const char *
@@ -808,7 +829,7 @@ yysymbol_name (yysymbol_kind_t yysymbol)
 }
 #endif
 
-#define YYPACT_NINF (-41)
+#define YYPACT_NINF (-44)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -822,14 +843,14 @@ yysymbol_name (yysymbol_kind_t yysymbol)
    STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-      -1,   -41,     4,    38,   -41,   -40,     2,   -41,   -41,   -41,
-     -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,
-     -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,
-     -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,   -41,
-     -41,   -41,   -41,   -41,   -41,   -41,    42,    38,   -41,   -41,
-     -41,    -4,   -41,    -2,   -41,   -41,    -2,   -41,   -41,    43,
-     -41,   -41,   -41,   -41,   -41,   -41,    76,    45,   -41,    -2,
-     -41,    46,   -41,   -41
+      -1,   -44,    47,    38,   -44,     3,    43,   -44,   -44,   -44,
+     -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,
+     -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,
+     -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,   -44,
+     -44,   -44,   -44,   -44,   -44,   -44,    83,    38,   -44,   -44,
+     -44,   -44,    -4,   -44,    -2,   -44,   -44,    49,   -44,   -44,
+     -44,   -43,   -44,   -44,   -44,   -44,   -44,   -43,   -44,   -44,
+     -44,    75,   -44,   -43,   -44,    49,   -44,   -43,   -44,   -44
 };
 
 /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -837,28 +858,28 @@ static const yytype_int8 yypact[] =
    means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     3,     0,     2,     1,     0,     0,    11,    12,    13,
-      14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
-      24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
-      34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      44,    45,     4,     6,     7,     5,     0,     0,     9,    46,
-       8,     0,    10,    45,    48,    47,    61,    52,    50,    51,
-      49,    53,    54,    55,    56,    62,     0,    57,    60,     0,
-      64,    58,    63,    59
+       0,     3,     0,     2,     1,     0,     0,    12,    13,    14,
+      15,    16,    17,    18,    19,    20,    21,    22,    23,    24,
+      25,    26,    27,    28,    29,    30,    31,    32,    33,    34,
+      35,    36,    37,    38,    39,    40,    41,    42,    43,    44,
+      45,    46,     4,     6,     7,     5,     0,     0,     9,    10,
+       8,    47,     0,    11,    46,    49,    48,    62,    51,    56,
+      57,    50,    52,    53,    54,    55,    67,    66,    68,    69,
+      70,     0,    63,    58,    61,     0,    65,    59,    64,    60
 };
 
 /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-     -41,   -41,   -41,    41,   -41,   -41,   -41,   -41,   -41,   -41,
-      31,   -41,   -41,   -41,   -41,   -41
+     -44,   -44,   -44,    40,   -44,   -44,   -44,   -44,   -44,   -44,
+     -44,    32,    37,    44,    46,   -44,   -44,    19
 };
 
 /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-       0,     2,     3,    42,    43,    44,    45,    46,    51,    55,
-      60,    61,    62,    63,    64,    66
+       0,     2,     3,    42,    43,    44,    45,    51,    46,    52,
+      56,    67,    68,    69,    70,    65,    71,    72
 };
 
 /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -866,36 +887,36 @@ static const yytype_int8 yydefgoto[] =
    number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-       5,     6,     1,    52,     4,    47,    56,     7,     8,     9,
+       5,     6,     1,    53,    59,    60,    57,     7,     8,     9,
       10,    11,    12,    13,    14,    15,    16,    17,    18,    19,
       20,    21,    22,    23,    24,    25,    26,    27,    28,    29,
       30,    31,    32,    33,    34,    35,    36,    37,    38,    39,
-      40,    53,     5,     6,    57,    58,    59,    48,    49,     7,
+      40,    54,     5,     6,    58,    59,    60,     4,    47,     7,
        8,     9,    10,    11,    12,    13,    14,    15,    16,    17,
       18,    19,    20,    21,    22,    23,    24,    25,    26,    27,
       28,    29,    30,    31,    32,    33,    34,    35,    36,    37,
-      38,    39,    40,    41,    56,    68,    69,    65,    50,     0,
-       0,    67,    54,    71,    73,     0,     0,    70,     0,     0,
-      72,     0,     0,     0,     0,     0,     0,     0,     0,     0,
+      38,    39,    40,    41,    74,    75,    61,    50,    48,    49,
+      76,    62,    55,    73,    78,    66,    59,    60,    63,    73,
+      64,     0,     0,     0,     0,    77,     0,     0,     0,    79,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,    57,    58,    59
+       0,    66,    59,    60
 };
 
 static const yytype_int8 yycheck[] =
 {
-       4,     5,     3,     7,     0,    45,     8,    11,    12,    13,
+       4,     5,     3,     7,    47,    48,     8,    11,    12,    13,
       14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
       24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
       34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      44,    45,     4,     5,    46,    47,    48,    45,     6,    11,
+      44,    45,     4,     5,    46,    47,    48,     0,    45,    11,
       12,    13,    14,    15,    16,    17,    18,    19,    20,    21,
       22,    23,    24,    25,    26,    27,    28,    29,    30,    31,
       32,    33,    34,    35,    36,    37,    38,    39,    40,    41,
-      42,    43,    44,    45,     8,     9,    10,    56,    47,    -1,
-      -1,    48,    51,    48,    48,    -1,    -1,    66,    -1,    -1,
-      69,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
+      42,    43,    44,    45,     9,    10,    54,    47,    45,     6,
+      71,    54,    52,    61,    75,    46,    47,    48,    54,    67,
+      54,    -1,    -1,    -1,    -1,    73,    -1,    -1,    -1,    77,
       -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,    -1,
-      -1,    -1,    46,    47,    48
+      -1,    46,    47,    48
 };
 
 /* YYSTOS[STATE-NUM] -- The symbol kind of the accessing symbol of
@@ -906,34 +927,36 @@ static const yytype_int8 yystos[] =
       14,    15,    16,    17,    18,    19,    20,    21,    22,    23,
       24,    25,    26,    27,    28,    29,    30,    31,    32,    33,
       34,    35,    36,    37,    38,    39,    40,    41,    42,    43,
-      44,    45,    52,    53,    54,    55,    56,    45,    45,     6,
-      52,    57,     7,    45,    52,    58,     8,    46,    47,    48,
-      59,    60,    61,    62,    63,    59,    64,    48,     9,    10,
-      59,    48,    59,    48
+      44,    45,    52,    53,    54,    55,    57,    45,    45,     6,
+      52,    56,    58,     7,    45,    52,    59,     8,    46,    47,
+      48,    60,    61,    62,    63,    64,    46,    60,    61,    62,
+      63,    65,    66,    60,     9,    10,    66,    60,    66,    60
 };
 
 /* YYR1[RULE-NUM] -- Symbol kind of the left-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr1[] =
 {
        0,    49,    50,    51,    51,    52,    52,    52,    53,    54,
-      55,    56,    56,    56,    56,    56,    56,    56,    56,    56,
-      56,    56,    56,    56,    56,    56,    56,    56,    56,    56,
-      56,    56,    56,    56,    56,    56,    56,    56,    56,    56,
-      56,    56,    56,    56,    56,    56,    57,    57,    57,    58,
-      59,    59,    59,    59,    59,    59,    59,    60,    61,    62,
-      63,    64,    64,    64,    64
+      56,    55,    57,    57,    57,    57,    57,    57,    57,    57,
+      57,    57,    57,    57,    57,    57,    57,    57,    57,    57,
+      57,    57,    57,    57,    57,    57,    57,    57,    57,    57,
+      57,    57,    57,    57,    57,    57,    57,    58,    58,    58,
+      59,    59,    59,    59,    59,    59,    60,    60,    61,    62,
+      63,    64,    65,    65,    65,    65,    66,    66,    66,    66,
+      66
 };
 
 /* YYR2[RULE-NUM] -- Number of symbols on the right-hand side of rule RULE-NUM.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     0,     2,     1,     1,     1,     3,     2,
-       4,     1,     1,     1,     1,     1,     1,     1,     1,     1,
+       0,     5,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
        1,     1,     1,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     1,     1,     0,     2,     2,     2,
-       1,     1,     1,     1,     1,     1,     1,     2,     3,     4,
-       3,     0,     1,     3,     2
+       1,     1,     1,     1,     1,     1,     1,     0,     2,     2,
+       2,     2,     2,     2,     2,     2,     1,     1,     2,     3,
+       4,     3,     0,     1,     3,     2,     1,     1,     1,     1,
+       1
 };
 
 
@@ -1397,23 +1420,23 @@ yyreduce:
   switch (yyn)
     {
   case 2: /* vrmlFile: HEADER vrmlScene  */
-#line 127 "vrml.y"
+#line 149 "vrml.y"
     {
         vrml_root = (yyvsp[0].node);
     }
-#line 1405 "y.tab.c"
+#line 1428 "y.tab.c"
     break;
 
   case 3: /* vrmlScene: %empty  */
-#line 134 "vrml.y"
+#line 156 "vrml.y"
     {
         (yyval.node) = NULL;
     }
-#line 1413 "y.tab.c"
+#line 1436 "y.tab.c"
     break;
 
   case 4: /* vrmlScene: vrmlScene node  */
-#line 138 "vrml.y"
+#line 160 "vrml.y"
     {
         if ((yyvsp[-1].node) == NULL) {
             /* Create implicit root Separator */
@@ -1425,35 +1448,35 @@ yyreduce:
             add_child_to_group((yyval.node), (yyvsp[0].node));
         }
     }
-#line 1429 "y.tab.c"
+#line 1452 "y.tab.c"
     break;
 
   case 5: /* node: nodeGuts  */
-#line 153 "vrml.y"
+#line 175 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1437 "y.tab.c"
+#line 1460 "y.tab.c"
     break;
 
   case 6: /* node: definedNode  */
-#line 157 "vrml.y"
+#line 179 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1445 "y.tab.c"
+#line 1468 "y.tab.c"
     break;
 
   case 7: /* node: usedNode  */
-#line 161 "vrml.y"
+#line 183 "vrml.y"
     {
         (yyval.node) = (yyvsp[0].node);
     }
-#line 1453 "y.tab.c"
+#line 1476 "y.tab.c"
     break;
 
   case 8: /* definedNode: DEF IDENTIFIER node  */
-#line 168 "vrml.y"
+#line 190 "vrml.y"
     {
         /* DEF name node - assign name and add to dictionary */
         (yyval.node) = (yyvsp[0].node);
@@ -1462,11 +1485,11 @@ yyreduce:
         }
         free((yyvsp[-1].stringval));
     }
-#line 1466 "y.tab.c"
+#line 1489 "y.tab.c"
     break;
 
   case 9: /* usedNode: USE IDENTIFIER  */
-#line 180 "vrml.y"
+#line 202 "vrml.y"
     {
         /* USE name - look up node in dictionary */
         /* Error: "Premature end of file after USE" */
@@ -1480,240 +1503,340 @@ yyreduce:
         }
         free((yyvsp[0].stringval));
     }
-#line 1484 "y.tab.c"
+#line 1507 "y.tab.c"
     break;
 
-  case 10: /* nodeGuts: nodeName LBRACE nodeBody RBRACE  */
-#line 197 "vrml.y"
-    {
-        (yyval.node) = create_node((yyvsp[-3].stringval));
-        free((yyvsp[-3].stringval));
-    }
-#line 1493 "y.tab.c"
-    break;
-
-  case 11: /* nodeName: SEPARATOR  */
-#line 204 "vrml.y"
-                        { (yyval.stringval) = strdup("Separator"); }
-#line 1499 "y.tab.c"
-    break;
-
-  case 12: /* nodeName: TRANSFORMSEPARATOR  */
-#line 205 "vrml.y"
-                         { (yyval.stringval) = strdup("TransformSeparator"); }
-#line 1505 "y.tab.c"
-    break;
-
-  case 13: /* nodeName: GROUP  */
-#line 206 "vrml.y"
-                        { (yyval.stringval) = strdup("Group"); }
-#line 1511 "y.tab.c"
-    break;
-
-  case 14: /* nodeName: SWITCH  */
-#line 207 "vrml.y"
-                        { (yyval.stringval) = strdup("Switch"); }
-#line 1517 "y.tab.c"
-    break;
-
-  case 15: /* nodeName: LEVELOFDETAIL  */
-#line 208 "vrml.y"
-                        { (yyval.stringval) = strdup("LevelOfDetail"); }
-#line 1523 "y.tab.c"
-    break;
-
-  case 16: /* nodeName: TRANSFORM  */
-#line 209 "vrml.y"
-                        { (yyval.stringval) = strdup("Transform"); }
-#line 1529 "y.tab.c"
-    break;
-
-  case 17: /* nodeName: ROTATION  */
-#line 210 "vrml.y"
-                        { (yyval.stringval) = strdup("Rotation"); }
-#line 1535 "y.tab.c"
-    break;
-
-  case 18: /* nodeName: TRANSLATION  */
-#line 211 "vrml.y"
-                        { (yyval.stringval) = strdup("Translation"); }
-#line 1541 "y.tab.c"
-    break;
-
-  case 19: /* nodeName: SCALE  */
-#line 212 "vrml.y"
-                        { (yyval.stringval) = strdup("Scale"); }
-#line 1547 "y.tab.c"
-    break;
-
-  case 20: /* nodeName: MATRIXTRANSFORM  */
-#line 213 "vrml.y"
-                        { (yyval.stringval) = strdup("MatrixTransform"); }
-#line 1553 "y.tab.c"
-    break;
-
-  case 21: /* nodeName: MATERIAL  */
-#line 214 "vrml.y"
-                        { (yyval.stringval) = strdup("Material"); }
-#line 1559 "y.tab.c"
-    break;
-
-  case 22: /* nodeName: MATERIALBINDING  */
-#line 215 "vrml.y"
-                        { (yyval.stringval) = strdup("MaterialBinding"); }
-#line 1565 "y.tab.c"
-    break;
-
-  case 23: /* nodeName: NORMALBINDING  */
-#line 216 "vrml.y"
-                        { (yyval.stringval) = strdup("NormalBinding"); }
-#line 1571 "y.tab.c"
-    break;
-
-  case 24: /* nodeName: SHAPEHINTS  */
-#line 217 "vrml.y"
-                        { (yyval.stringval) = strdup("ShapeHints"); }
-#line 1577 "y.tab.c"
-    break;
-
-  case 25: /* nodeName: COORDINATE3  */
-#line 218 "vrml.y"
-                        { (yyval.stringval) = strdup("Coordinate3"); }
-#line 1583 "y.tab.c"
-    break;
-
-  case 26: /* nodeName: NORMAL  */
+  case 10: /* $@1: %empty  */
 #line 219 "vrml.y"
-                        { (yyval.stringval) = strdup("Normal"); }
-#line 1589 "y.tab.c"
-    break;
-
-  case 27: /* nodeName: TEXTURE2  */
-#line 220 "vrml.y"
-                        { (yyval.stringval) = strdup("Texture2"); }
-#line 1595 "y.tab.c"
-    break;
-
-  case 28: /* nodeName: TEXTURE2TRANSFORM  */
-#line 221 "vrml.y"
-                        { (yyval.stringval) = strdup("Texture2Transform"); }
-#line 1601 "y.tab.c"
-    break;
-
-  case 29: /* nodeName: TEXTURECOORDINATE2  */
-#line 222 "vrml.y"
-                         { (yyval.stringval) = strdup("TextureCoordinate2"); }
-#line 1607 "y.tab.c"
-    break;
-
-  case 30: /* nodeName: SPHERE  */
-#line 223 "vrml.y"
-                        { (yyval.stringval) = strdup("Sphere"); }
-#line 1613 "y.tab.c"
-    break;
-
-  case 31: /* nodeName: CUBE  */
-#line 224 "vrml.y"
-                        { (yyval.stringval) = strdup("Cube"); }
-#line 1619 "y.tab.c"
-    break;
-
-  case 32: /* nodeName: CONE  */
-#line 225 "vrml.y"
-                        { (yyval.stringval) = strdup("Cone"); }
-#line 1625 "y.tab.c"
-    break;
-
-  case 33: /* nodeName: CYLINDER  */
-#line 226 "vrml.y"
-                        { (yyval.stringval) = strdup("Cylinder"); }
-#line 1631 "y.tab.c"
-    break;
-
-  case 34: /* nodeName: INDEXEDFACESET  */
-#line 227 "vrml.y"
-                        { (yyval.stringval) = strdup("IndexedFaceSet"); }
-#line 1637 "y.tab.c"
-    break;
-
-  case 35: /* nodeName: INDEXEDLINESET  */
-#line 228 "vrml.y"
-                        { (yyval.stringval) = strdup("IndexedLineSet"); }
-#line 1643 "y.tab.c"
-    break;
-
-  case 36: /* nodeName: POINTSET  */
-#line 229 "vrml.y"
-                        { (yyval.stringval) = strdup("PointSet"); }
-#line 1649 "y.tab.c"
-    break;
-
-  case 37: /* nodeName: DIRECTIONALLIGHT  */
-#line 230 "vrml.y"
-                        { (yyval.stringval) = strdup("DirectionalLight"); }
-#line 1655 "y.tab.c"
-    break;
-
-  case 38: /* nodeName: POINTLIGHT  */
-#line 231 "vrml.y"
-                        { (yyval.stringval) = strdup("PointLight"); }
-#line 1661 "y.tab.c"
-    break;
-
-  case 39: /* nodeName: SPOTLIGHT  */
-#line 232 "vrml.y"
-                        { (yyval.stringval) = strdup("SpotLight"); }
-#line 1667 "y.tab.c"
-    break;
-
-  case 40: /* nodeName: ORTHOGRAPHICCAMERA  */
-#line 233 "vrml.y"
-                         { (yyval.stringval) = strdup("OrthographicCamera"); }
-#line 1673 "y.tab.c"
-    break;
-
-  case 41: /* nodeName: PERSPECTIVECAMERA  */
-#line 234 "vrml.y"
-                        { (yyval.stringval) = strdup("PerspectiveCamera"); }
-#line 1679 "y.tab.c"
-    break;
-
-  case 42: /* nodeName: WWWANCHOR  */
-#line 235 "vrml.y"
-                        { (yyval.stringval) = strdup("WWWAnchor"); }
-#line 1685 "y.tab.c"
-    break;
-
-  case 43: /* nodeName: WWWINLINE  */
-#line 236 "vrml.y"
-                        { (yyval.stringval) = strdup("WWWInline"); }
-#line 1691 "y.tab.c"
-    break;
-
-  case 44: /* nodeName: INFO  */
-#line 237 "vrml.y"
-                        { (yyval.stringval) = strdup("Info"); }
-#line 1697 "y.tab.c"
-    break;
-
-  case 45: /* nodeName: IDENTIFIER  */
-#line 238 "vrml.y"
-                        { (yyval.stringval) = (yyvsp[0].stringval); /* Unknown node type */ }
-#line 1703 "y.tab.c"
-    break;
-
-  case 49: /* fieldDeclaration: IDENTIFIER fieldValue  */
-#line 249 "vrml.y"
     {
-        /* Field assignments handled in QvNode::readInstance() */
-        /* Error strings: "Unknown field", "Couldn't read value for field" */
+        current_node = create_node((yyvsp[-1].stringval));
         free((yyvsp[-1].stringval));
     }
-#line 1713 "y.tab.c"
+#line 1516 "y.tab.c"
+    break;
+
+  case 11: /* nodeGuts: nodeName LBRACE $@1 nodeBody RBRACE  */
+#line 224 "vrml.y"
+    {
+        (yyval.node) = current_node;
+        current_node = NULL;
+    }
+#line 1525 "y.tab.c"
+    break;
+
+  case 12: /* nodeName: SEPARATOR  */
+#line 231 "vrml.y"
+                        { (yyval.stringval) = strdup("Separator"); }
+#line 1531 "y.tab.c"
+    break;
+
+  case 13: /* nodeName: TRANSFORMSEPARATOR  */
+#line 232 "vrml.y"
+                         { (yyval.stringval) = strdup("TransformSeparator"); }
+#line 1537 "y.tab.c"
+    break;
+
+  case 14: /* nodeName: GROUP  */
+#line 233 "vrml.y"
+                        { (yyval.stringval) = strdup("Group"); }
+#line 1543 "y.tab.c"
+    break;
+
+  case 15: /* nodeName: SWITCH  */
+#line 234 "vrml.y"
+                        { (yyval.stringval) = strdup("Switch"); }
+#line 1549 "y.tab.c"
+    break;
+
+  case 16: /* nodeName: LEVELOFDETAIL  */
+#line 235 "vrml.y"
+                        { (yyval.stringval) = strdup("LevelOfDetail"); }
+#line 1555 "y.tab.c"
+    break;
+
+  case 17: /* nodeName: TRANSFORM  */
+#line 236 "vrml.y"
+                        { (yyval.stringval) = strdup("Transform"); }
+#line 1561 "y.tab.c"
+    break;
+
+  case 18: /* nodeName: ROTATION  */
+#line 237 "vrml.y"
+                        { (yyval.stringval) = strdup("Rotation"); }
+#line 1567 "y.tab.c"
+    break;
+
+  case 19: /* nodeName: TRANSLATION  */
+#line 238 "vrml.y"
+                        { (yyval.stringval) = strdup("Translation"); }
+#line 1573 "y.tab.c"
+    break;
+
+  case 20: /* nodeName: SCALE  */
+#line 239 "vrml.y"
+                        { (yyval.stringval) = strdup("Scale"); }
+#line 1579 "y.tab.c"
+    break;
+
+  case 21: /* nodeName: MATRIXTRANSFORM  */
+#line 240 "vrml.y"
+                        { (yyval.stringval) = strdup("MatrixTransform"); }
+#line 1585 "y.tab.c"
+    break;
+
+  case 22: /* nodeName: MATERIAL  */
+#line 241 "vrml.y"
+                        { (yyval.stringval) = strdup("Material"); }
+#line 1591 "y.tab.c"
+    break;
+
+  case 23: /* nodeName: MATERIALBINDING  */
+#line 242 "vrml.y"
+                        { (yyval.stringval) = strdup("MaterialBinding"); }
+#line 1597 "y.tab.c"
+    break;
+
+  case 24: /* nodeName: NORMALBINDING  */
+#line 243 "vrml.y"
+                        { (yyval.stringval) = strdup("NormalBinding"); }
+#line 1603 "y.tab.c"
+    break;
+
+  case 25: /* nodeName: SHAPEHINTS  */
+#line 244 "vrml.y"
+                        { (yyval.stringval) = strdup("ShapeHints"); }
+#line 1609 "y.tab.c"
+    break;
+
+  case 26: /* nodeName: COORDINATE3  */
+#line 245 "vrml.y"
+                        { (yyval.stringval) = strdup("Coordinate3"); }
+#line 1615 "y.tab.c"
+    break;
+
+  case 27: /* nodeName: NORMAL  */
+#line 246 "vrml.y"
+                        { (yyval.stringval) = strdup("Normal"); }
+#line 1621 "y.tab.c"
+    break;
+
+  case 28: /* nodeName: TEXTURE2  */
+#line 247 "vrml.y"
+                        { (yyval.stringval) = strdup("Texture2"); }
+#line 1627 "y.tab.c"
+    break;
+
+  case 29: /* nodeName: TEXTURE2TRANSFORM  */
+#line 248 "vrml.y"
+                        { (yyval.stringval) = strdup("Texture2Transform"); }
+#line 1633 "y.tab.c"
+    break;
+
+  case 30: /* nodeName: TEXTURECOORDINATE2  */
+#line 249 "vrml.y"
+                         { (yyval.stringval) = strdup("TextureCoordinate2"); }
+#line 1639 "y.tab.c"
+    break;
+
+  case 31: /* nodeName: SPHERE  */
+#line 250 "vrml.y"
+                        { (yyval.stringval) = strdup("Sphere"); }
+#line 1645 "y.tab.c"
+    break;
+
+  case 32: /* nodeName: CUBE  */
+#line 251 "vrml.y"
+                        { (yyval.stringval) = strdup("Cube"); }
+#line 1651 "y.tab.c"
+    break;
+
+  case 33: /* nodeName: CONE  */
+#line 252 "vrml.y"
+                        { (yyval.stringval) = strdup("Cone"); }
+#line 1657 "y.tab.c"
+    break;
+
+  case 34: /* nodeName: CYLINDER  */
+#line 253 "vrml.y"
+                        { (yyval.stringval) = strdup("Cylinder"); }
+#line 1663 "y.tab.c"
+    break;
+
+  case 35: /* nodeName: INDEXEDFACESET  */
+#line 254 "vrml.y"
+                        { (yyval.stringval) = strdup("IndexedFaceSet"); }
+#line 1669 "y.tab.c"
+    break;
+
+  case 36: /* nodeName: INDEXEDLINESET  */
+#line 255 "vrml.y"
+                        { (yyval.stringval) = strdup("IndexedLineSet"); }
+#line 1675 "y.tab.c"
+    break;
+
+  case 37: /* nodeName: POINTSET  */
+#line 256 "vrml.y"
+                        { (yyval.stringval) = strdup("PointSet"); }
+#line 1681 "y.tab.c"
+    break;
+
+  case 38: /* nodeName: DIRECTIONALLIGHT  */
+#line 257 "vrml.y"
+                        { (yyval.stringval) = strdup("DirectionalLight"); }
+#line 1687 "y.tab.c"
+    break;
+
+  case 39: /* nodeName: POINTLIGHT  */
+#line 258 "vrml.y"
+                        { (yyval.stringval) = strdup("PointLight"); }
+#line 1693 "y.tab.c"
+    break;
+
+  case 40: /* nodeName: SPOTLIGHT  */
+#line 259 "vrml.y"
+                        { (yyval.stringval) = strdup("SpotLight"); }
+#line 1699 "y.tab.c"
+    break;
+
+  case 41: /* nodeName: ORTHOGRAPHICCAMERA  */
+#line 260 "vrml.y"
+                         { (yyval.stringval) = strdup("OrthographicCamera"); }
+#line 1705 "y.tab.c"
+    break;
+
+  case 42: /* nodeName: PERSPECTIVECAMERA  */
+#line 261 "vrml.y"
+                        { (yyval.stringval) = strdup("PerspectiveCamera"); }
+#line 1711 "y.tab.c"
+    break;
+
+  case 43: /* nodeName: WWWANCHOR  */
+#line 262 "vrml.y"
+                        { (yyval.stringval) = strdup("WWWAnchor"); }
+#line 1717 "y.tab.c"
+    break;
+
+  case 44: /* nodeName: WWWINLINE  */
+#line 263 "vrml.y"
+                        { (yyval.stringval) = strdup("WWWInline"); }
+#line 1723 "y.tab.c"
+    break;
+
+  case 45: /* nodeName: INFO  */
+#line 264 "vrml.y"
+                        { (yyval.stringval) = strdup("Info"); }
+#line 1729 "y.tab.c"
+    break;
+
+  case 46: /* nodeName: IDENTIFIER  */
+#line 265 "vrml.y"
+                        { (yyval.stringval) = (yyvsp[0].stringval); /* Unknown node type */ }
+#line 1735 "y.tab.c"
+    break;
+
+  case 50: /* fieldDeclaration: IDENTIFIER number  */
+#line 276 "vrml.y"
+    {
+        // Could be int or float field - try both
+        if ((int)(yyvsp[0].floatval) == (yyvsp[0].floatval)) {
+            set_field_int(current_node, (yyvsp[-1].stringval), (int)(yyvsp[0].floatval));
+        }
+        set_field_float(current_node, (yyvsp[-1].stringval), (yyvsp[0].floatval));
+        free((yyvsp[-1].stringval));
+    }
+#line 1748 "y.tab.c"
+    break;
+
+  case 51: /* fieldDeclaration: IDENTIFIER STRING  */
+#line 285 "vrml.y"
+    {
+        set_field_string(current_node, (yyvsp[-1].stringval), (yyvsp[0].stringval));
+        free((yyvsp[-1].stringval));
+        free((yyvsp[0].stringval));
+    }
+#line 1758 "y.tab.c"
+    break;
+
+  case 52: /* fieldDeclaration: IDENTIFIER vec2f  */
+#line 291 "vrml.y"
+    {
+        set_field_vec2f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec2).x, (yyvsp[0].vec2).y);
+        free((yyvsp[-1].stringval));
+    }
+#line 1767 "y.tab.c"
+    break;
+
+  case 53: /* fieldDeclaration: IDENTIFIER vec3f  */
+#line 296 "vrml.y"
+    {
+        set_field_vec3f(current_node, (yyvsp[-1].stringval), (yyvsp[0].vec3).x, (yyvsp[0].vec3).y, (yyvsp[0].vec3).z);
+        free((yyvsp[-1].stringval));
+    }
+#line 1776 "y.tab.c"
+    break;
+
+  case 54: /* fieldDeclaration: IDENTIFIER rotation  */
+#line 301 "vrml.y"
+    {
+        set_field_rotation(current_node, (yyvsp[-1].stringval), (yyvsp[0].rot).x, (yyvsp[0].rot).y, (yyvsp[0].rot).z, (yyvsp[0].rot).angle);
+        free((yyvsp[-1].stringval));
+    }
+#line 1785 "y.tab.c"
+    break;
+
+  case 55: /* fieldDeclaration: IDENTIFIER fieldArray  */
+#line 306 "vrml.y"
+    {
+        /* Array field assignments handled separately */
+        free((yyvsp[-1].stringval));
+    }
+#line 1794 "y.tab.c"
+    break;
+
+  case 56: /* number: INTEGER  */
+#line 313 "vrml.y"
+            { (yyval.floatval) = (float)(yyvsp[0].intval); }
+#line 1800 "y.tab.c"
+    break;
+
+  case 57: /* number: FLOAT  */
+#line 314 "vrml.y"
+            { (yyval.floatval) = (yyvsp[0].floatval); }
+#line 1806 "y.tab.c"
+    break;
+
+  case 58: /* vec2f: number number  */
+#line 319 "vrml.y"
+    {
+        (yyval.vec2).x = (yyvsp[-1].floatval);
+        (yyval.vec2).y = (yyvsp[0].floatval);
+    }
+#line 1815 "y.tab.c"
+    break;
+
+  case 59: /* vec3f: number number number  */
+#line 327 "vrml.y"
+    {
+        (yyval.vec3).x = (yyvsp[-2].floatval);
+        (yyval.vec3).y = (yyvsp[-1].floatval);
+        (yyval.vec3).z = (yyvsp[0].floatval);
+    }
+#line 1825 "y.tab.c"
+    break;
+
+  case 60: /* rotation: number number number number  */
+#line 336 "vrml.y"
+    {
+        (yyval.rot).x = (yyvsp[-3].floatval);
+        (yyval.rot).y = (yyvsp[-2].floatval);
+        (yyval.rot).z = (yyvsp[-1].floatval);
+        (yyval.rot).angle = (yyvsp[0].floatval);
+    }
+#line 1836 "y.tab.c"
     break;
 
 
-#line 1717 "y.tab.c"
+#line 1840 "y.tab.c"
 
       default: break;
     }
@@ -1906,7 +2029,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 289 "vrml.y"
+#line 363 "vrml.y"
 
 
 /*
@@ -1988,4 +2111,170 @@ void add_child_to_group(QvNode* parent, QvNode* child)
 QvNode* vrml_get_root(void)
 {
     return vrml_root;
+}
+
+/*
+ * Field setter helper functions
+ * These functions find the field by name and set its value
+ */
+
+#include "../include/QvFields.h"
+
+void set_field_float(QvNode* node, const char* name, float value)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    // Check if it's a float field or multi-float field
+    if (strcmp(field->getTypeId(), "SFFloat") == 0) {
+        QvSFFloat* floatField = (QvSFFloat*)field;
+        floatField->value = value;
+    } else if (strcmp(field->getTypeId(), "MFFloat") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFFloat* mfField = (QvMFFloat*)field;
+        mfField->values = (float*)realloc(mfField->values, sizeof(float) * (mfField->num + 1));
+        mfField->values[mfField->num++] = value;
+    }
+}
+
+void set_field_int(QvNode* node, const char* name, int value)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    // Could be SFInt32, SFBool, SFEnum, SFBitMask, or MFInt32
+    if (strcmp(field->getTypeId(), "SFInt32") == 0) {
+        QvSFInt32* intField = (QvSFInt32*)field;
+        intField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFBool") == 0) {
+        QvSFBool* boolField = (QvSFBool*)field;
+        boolField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFEnum") == 0) {
+        QvSFEnum* enumField = (QvSFEnum*)field;
+        enumField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFBitMask") == 0) {
+        QvSFBitMask* maskField = (QvSFBitMask*)field;
+        maskField->value = value;
+    } else if (strcmp(field->getTypeId(), "MFInt32") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFInt32* mfField = (QvMFInt32*)field;
+        mfField->values = (long*)realloc(mfField->values, sizeof(long) * (mfField->num + 1));
+        mfField->values[mfField->num++] = value;
+    }
+}
+
+void set_field_string(QvNode* node, const char* name, const char* value)
+{
+    if (node == NULL || name == NULL || value == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFString") == 0) {
+        QvSFString* stringField = (QvSFString*)field;
+        if (stringField->value != NULL) {
+            free(stringField->value);
+        }
+        stringField->value = strdup(value);
+    }
+}
+
+void set_field_vec2f(QvNode* node, const char* name, float x, float y)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFVec2f") == 0) {
+        QvSFVec2f* vec2Field = (QvSFVec2f*)field;
+        vec2Field->value.x = x;
+        vec2Field->value.y = y;
+    } else if (strcmp(field->getTypeId(), "MFVec2f") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFVec2f* mfField = (QvMFVec2f*)field;
+        mfField->values = (QvVec2f*)realloc(mfField->values, sizeof(QvVec2f) * (mfField->num + 1));
+        mfField->values[mfField->num].x = x;
+        mfField->values[mfField->num].y = y;
+        mfField->num++;
+    }
+}
+
+void set_field_vec3f(QvNode* node, const char* name, float x, float y, float z)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFVec3f") == 0) {
+        QvSFVec3f* vec3Field = (QvSFVec3f*)field;
+        vec3Field->value.x = x;
+        vec3Field->value.y = y;
+        vec3Field->value.z = z;
+    } else if (strcmp(field->getTypeId(), "MFVec3f") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFVec3f* mfField = (QvMFVec3f*)field;
+        mfField->values = (QvVec3f*)realloc(mfField->values, sizeof(QvVec3f) * (mfField->num + 1));
+        mfField->values[mfField->num].x = x;
+        mfField->values[mfField->num].y = y;
+        mfField->values[mfField->num].z = z;
+        mfField->num++;
+    }
+}
+
+void set_field_rotation(QvNode* node, const char* name, float x, float y, float z, float angle)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFRotation") == 0) {
+        QvSFRotation* rotField = (QvSFRotation*)field;
+        rotField->value.x = x;
+        rotField->value.y = y;
+        rotField->value.z = z;
+        rotField->value.angle = angle;
+    }
 }

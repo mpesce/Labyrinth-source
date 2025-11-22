@@ -59,6 +59,9 @@ static QvNode* vrml_root = NULL;
 /* Name dictionary for DEF/USE */
 static void* name_dict = NULL;
 
+/* Current node being parsed (for field assignment) */
+static QvNode* current_node = NULL;
+
 /* Error messages from strings analysis */
 void yyerror(const char* s);
 int yylex(void);
@@ -66,6 +69,12 @@ int yylex(void);
 /* Forward declarations */
 QvNode* create_node(const char* type);
 void add_child_to_group(QvNode* parent, QvNode* child);
+void set_field_float(QvNode* node, const char* name, float value);
+void set_field_int(QvNode* node, const char* name, int value);
+void set_field_string(QvNode* node, const char* name, const char* value);
+void set_field_vec2f(QvNode* node, const char* name, float x, float y);
+void set_field_vec3f(QvNode* node, const char* name, float x, float y, float z);
+void set_field_rotation(QvNode* node, const char* name, float x, float y, float z, float angle);
 
 /* Exported functions for C++ parser interface */
 #ifdef __cplusplus
@@ -83,6 +92,15 @@ extern "C" {
     float           floatval;
     char*           stringval;
     QvNode*         node;
+    struct {
+        float x, y;
+    } vec2;
+    struct {
+        float x, y, z;
+    } vec3;
+    struct {
+        float x, y, z, angle;
+    } rot;
 }
 
 /* Tokens from lexer */
@@ -118,6 +136,10 @@ extern "C" {
 %type <node>        definedNode
 %type <node>        usedNode
 %type <stringval>   nodeName
+%type <floatval>    number
+%type <vec2>        vec2f
+%type <vec3>        vec3f
+%type <rot>         rotation
 
 %%
 
@@ -193,10 +215,15 @@ usedNode:
     ;
 
 nodeGuts:
-    nodeName LBRACE nodeBody RBRACE
+    nodeName LBRACE
     {
-        $$ = create_node($1);
+        current_node = create_node($1);
         free($1);
+    }
+    nodeBody RBRACE
+    {
+        $$ = current_node;
+        current_node = NULL;
     }
     ;
 
@@ -245,34 +272,73 @@ nodeBody:
     ;
 
 fieldDeclaration:
-    IDENTIFIER fieldValue
+    IDENTIFIER number
     {
-        /* Field assignments handled in QvNode::readInstance() */
-        /* Error strings: "Unknown field", "Couldn't read value for field" */
+        // Could be int or float field - try both
+        if ((int)$2 == $2) {
+            set_field_int(current_node, $1, (int)$2);
+        }
+        set_field_float(current_node, $1, $2);
+        free($1);
+    }
+    | IDENTIFIER STRING
+    {
+        set_field_string(current_node, $1, $2);
+        free($1);
+        free($2);
+    }
+    | IDENTIFIER vec2f
+    {
+        set_field_vec2f(current_node, $1, $2.x, $2.y);
+        free($1);
+    }
+    | IDENTIFIER vec3f
+    {
+        set_field_vec3f(current_node, $1, $2.x, $2.y, $2.z);
+        free($1);
+    }
+    | IDENTIFIER rotation
+    {
+        set_field_rotation(current_node, $1, $2.x, $2.y, $2.z, $2.angle);
+        free($1);
+    }
+    | IDENTIFIER fieldArray
+    {
+        /* Array field assignments handled separately */
         free($1);
     }
     ;
 
-fieldValue:
-    INTEGER
-    | FLOAT
-    | STRING
-    | vec2f
-    | vec3f
-    | rotation
-    | fieldArray
+number:
+    INTEGER { $$ = (float)$1; }
+    | FLOAT { $$ = $1; }
     ;
 
 vec2f:
-    FLOAT FLOAT
+    number number
+    {
+        $$.x = $1;
+        $$.y = $2;
+    }
     ;
 
 vec3f:
-    FLOAT FLOAT FLOAT
+    number number number
+    {
+        $$.x = $1;
+        $$.y = $2;
+        $$.z = $3;
+    }
     ;
 
 rotation:
-    FLOAT FLOAT FLOAT FLOAT
+    number number number number
+    {
+        $$.x = $1;
+        $$.y = $2;
+        $$.z = $3;
+        $$.angle = $4;
+    }
     ;
 
 fieldArray:
@@ -281,9 +347,17 @@ fieldArray:
 
 fieldValueList:
     /* empty */
-    | fieldValue
-    | fieldValueList COMMA fieldValue
-    | fieldValueList fieldValue
+    | arrayElement
+    | fieldValueList COMMA arrayElement
+    | fieldValueList arrayElement
+    ;
+
+arrayElement:
+    number
+    | STRING
+    | vec2f
+    | vec3f
+    | rotation
     ;
 
 %%
@@ -367,4 +441,170 @@ void add_child_to_group(QvNode* parent, QvNode* child)
 QvNode* vrml_get_root(void)
 {
     return vrml_root;
+}
+
+/*
+ * Field setter helper functions
+ * These functions find the field by name and set its value
+ */
+
+#include "../include/QvFields.h"
+
+void set_field_float(QvNode* node, const char* name, float value)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    // Check if it's a float field or multi-float field
+    if (strcmp(field->getTypeId(), "SFFloat") == 0) {
+        QvSFFloat* floatField = (QvSFFloat*)field;
+        floatField->value = value;
+    } else if (strcmp(field->getTypeId(), "MFFloat") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFFloat* mfField = (QvMFFloat*)field;
+        mfField->values = (float*)realloc(mfField->values, sizeof(float) * (mfField->num + 1));
+        mfField->values[mfField->num++] = value;
+    }
+}
+
+void set_field_int(QvNode* node, const char* name, int value)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    // Could be SFInt32, SFBool, SFEnum, SFBitMask, or MFInt32
+    if (strcmp(field->getTypeId(), "SFInt32") == 0) {
+        QvSFInt32* intField = (QvSFInt32*)field;
+        intField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFBool") == 0) {
+        QvSFBool* boolField = (QvSFBool*)field;
+        boolField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFEnum") == 0) {
+        QvSFEnum* enumField = (QvSFEnum*)field;
+        enumField->value = value;
+    } else if (strcmp(field->getTypeId(), "SFBitMask") == 0) {
+        QvSFBitMask* maskField = (QvSFBitMask*)field;
+        maskField->value = value;
+    } else if (strcmp(field->getTypeId(), "MFInt32") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFInt32* mfField = (QvMFInt32*)field;
+        mfField->values = (long*)realloc(mfField->values, sizeof(long) * (mfField->num + 1));
+        mfField->values[mfField->num++] = value;
+    }
+}
+
+void set_field_string(QvNode* node, const char* name, const char* value)
+{
+    if (node == NULL || name == NULL || value == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFString") == 0) {
+        QvSFString* stringField = (QvSFString*)field;
+        if (stringField->value != NULL) {
+            free(stringField->value);
+        }
+        stringField->value = strdup(value);
+    }
+}
+
+void set_field_vec2f(QvNode* node, const char* name, float x, float y)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFVec2f") == 0) {
+        QvSFVec2f* vec2Field = (QvSFVec2f*)field;
+        vec2Field->value.x = x;
+        vec2Field->value.y = y;
+    } else if (strcmp(field->getTypeId(), "MFVec2f") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFVec2f* mfField = (QvMFVec2f*)field;
+        mfField->values = (QvVec2f*)realloc(mfField->values, sizeof(QvVec2f) * (mfField->num + 1));
+        mfField->values[mfField->num].x = x;
+        mfField->values[mfField->num].y = y;
+        mfField->num++;
+    }
+}
+
+void set_field_vec3f(QvNode* node, const char* name, float x, float y, float z)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFVec3f") == 0) {
+        QvSFVec3f* vec3Field = (QvSFVec3f*)field;
+        vec3Field->value.x = x;
+        vec3Field->value.y = y;
+        vec3Field->value.z = z;
+    } else if (strcmp(field->getTypeId(), "MFVec3f") == 0) {
+        // Multi-value field: add single value as one-element array
+        QvMFVec3f* mfField = (QvMFVec3f*)field;
+        mfField->values = (QvVec3f*)realloc(mfField->values, sizeof(QvVec3f) * (mfField->num + 1));
+        mfField->values[mfField->num].x = x;
+        mfField->values[mfField->num].y = y;
+        mfField->values[mfField->num].z = z;
+        mfField->num++;
+    }
+}
+
+void set_field_rotation(QvNode* node, const char* name, float x, float y, float z, float angle)
+{
+    if (node == NULL || name == NULL) return;
+
+    QvFieldData* fieldData = node->getFieldData();
+    if (fieldData == NULL) return;
+
+    QvField* field = fieldData->getField(name);
+    if (field == NULL) {
+        // Silently ignore unknown fields (may be valid VRML extensions)
+        return;
+    }
+
+    if (strcmp(field->getTypeId(), "SFRotation") == 0) {
+        QvSFRotation* rotField = (QvSFRotation*)field;
+        rotField->value.x = x;
+        rotField->value.y = y;
+        rotField->value.z = z;
+        rotField->value.angle = angle;
+    }
 }
